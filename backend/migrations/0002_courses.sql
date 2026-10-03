@@ -1,0 +1,19 @@
+-- The 14 courses in the plan. Keywords are lowercase phrases that
+-- must all appear in the Udemy course title for the extension to match it.
+-- If you know a course's numeric Udemy id, set udemy_course_id for an exact match.
+
+insert into courses (id, slug, title, instructor, udemy_url, keywords, start_day, end_day) values
+  (1,  'sql-bootcamp',    'The Complete SQL Bootcamp',                                   'Jose Portilla',                  'https://www.udemy.com/courses/search/?q=The%20Complete%20SQL%20Bootcamp',               '{sql bootcamp}',              1,  9),
+  (2,  'python-data-eng', 'Python for Data Engineers: Pipelines, APIs, Databases A to Z', null,                             'https://www.udemy.com/courses/search/?q=Python%20for%20Data%20Engineers',               '{python for data engineer}', 10, 13),
+  (3,  'linux-mastery',   'Linux Mastery',                                               'Ziyad Yehia',                    'https://www.udemy.com/courses/search/?q=Linux%20Mastery',                               '{linux mastery}',            15, 16),
+  (4,  'git-complete',    'Git Complete',                                                'Jason Taylor',                   'https://www.udemy.com/courses/search/?q=Git%20Complete',                                '{git complete}',             17, 17),
+  (5,  'docker-mastery',  'Docker Mastery',                                              'Bret Fisher',                    'https://www.udemy.com/courses/search/?q=Docker%20Mastery',                              '{docker mastery}',           18, 20),
+  (6,  'snowflake',       'Snowflake – The Complete Masterclass',                        'Nikolai Schuler',                'https://www.udemy.com/courses/search/?q=Snowflake%20Complete%20Masterclass',            '{snowflake}',                22, 27),
+  (7,  'dbt-bootcamp',    'The Complete dbt (Data Build Tool) Bootcamp: Zero to Hero',   'Zoltan C. Toth',                 'https://www.udemy.com/courses/search/?q=Complete%20dbt%20Bootcamp',                     '{dbt}',                      32, 40),
+  (8,  'airflow',         'Apache Airflow: The Hands-On Guide',                          'Marc Lamberti',                  'https://www.udemy.com/courses/search/?q=Apache%20Airflow%20Hands-On%20Guide',           '{airflow}',                  41, 48),
+  (9,  'spark',           'Taming Big Data with Apache Spark and Python',                'Frank Kane',                     'https://www.udemy.com/courses/search/?q=Taming%20Big%20Data%20Apache%20Spark%20Python', '{taming big data}',          50, 58),
+  (10, 'aws-dea',         'AWS Certified Data Engineer Associate 2026 – Hands On!',      'Frank Kane and Stéphane Maarek', 'https://www.udemy.com/courses/search/?q=AWS%20Certified%20Data%20Engineer%20Associate', '{aws,data engineer}',        64, 72),
+  (11, 'kafka',           'Apache Kafka Series – Learn Apache Kafka for Beginners',      'Stéphane Maarek',                'https://www.udemy.com/courses/search/?q=Learn%20Apache%20Kafka%20for%20Beginners',      '{kafka}',                    73, 76),
+  (12, 'databricks',      'Azure Databricks & Spark for Data Engineers',                 'Ramesh Retnasamy',               'https://www.udemy.com/courses/search/?q=Azure%20Databricks%20Spark%20Data%20Engineers', '{databricks}',               78, 81),
+  (13, 'terraform',       'HashiCorp Certified: Terraform Associate 2026',               'Zeal Vora',                      'https://www.udemy.com/courses/search/?q=Terraform%20Associate%20Zeal%20Vora',           '{terraform}',                82, 82),
+  (14, 'github-actions',  'GitHub Actions – The Complete Guide',                         'Maximilian Schwarzmüller',       'https://www.udemy.com/courses/search/?q=GitHub%20Actions%20Complete%20Guide',           '{github actions}',           83, 83);

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DE100 Udemy Sync</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <span class="logo">100</span>
+      <strong>DE100 Udemy Sync</strong>
+    </header>
+
+    <section id="signed-out" hidden>
+      <p class="muted">Sign in with the same account you use in the tracker web app.</p>
+      <form id="login-form">
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" maxlength="128" required />
+        <button type="submit" class="primary">Sign in</button>
+      </form>
+      <div id="google-block" hidden>
+        <div class="divider"><span>or</span></div>
+        <button id="google">Continue with Google</button>
+      </div>
+      <p class="muted small">No account yet? <a id="signup" href="#" target="_blank" rel="noopener">Create one in the web app</a>.</p>
+    </section>
+
+    <section id="signed-in" hidden>
+      <p class="muted small">Signed in as <strong id="who"></strong></p>
+      <button id="sync" class="primary">Sync Udemy progress</button>
+      <p id="last" class="muted small"></p>
+      <ul id="matched"></ul>
+      <label class="toggle"><input id="auto" type="checkbox" /> Auto-sync hourly while Udemy is open</label>
+      <div class="row">
+        <a id="open-app" href="#" target="_blank" rel="noopener">Open tracker</a>
+        <button id="sign-out" class="link">Sign out</button>
+      </div>
+    </section>
+
+    <p id="message" role="status" hidden></p>
+    <p class="muted tiny">Only course titles and percentages leave your browser. Your Udemy password is never read.</p>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

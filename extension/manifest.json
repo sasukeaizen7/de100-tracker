@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "DE100 Udemy Sync",
+  "version": "0.1.0",
+  "description": "Syncs your Udemy course progress to your DE100 tracker. Reads only course titles and percentages.",
+  "permissions": [
+    "storage",
+    "identity",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.udemy.com/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DE100 Udemy Sync",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
