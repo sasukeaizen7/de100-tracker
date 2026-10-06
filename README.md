@@ -110,7 +110,7 @@ browser ──> Vercel (web app, static) ──/api/*──> Render (NestJS API)
 ```
 The browser only talks to the Vercel domain: `web/vercel.json` forwards `/api/*` to Render, so the refresh cookie stays first-party.
 
-1. **Database, Neon:** create a free project in an EU region (Frankfurt) and copy its connection string. Keep `?sslmode=require`.
+1. **Database, Neon:** create a free project and copy its connection string, ending it with `?sslmode=verify-full`. Put the Render service in the same region as the database (`region` in `render.yaml`): every API request runs several queries.
 2. **API, Render:** *New → Blueprint*, pick this GitHub repo; `render.yaml` defines the service (`backend/`, Node 24, health check `/api/health`, a generated `JWT_SECRET`). Fill in the prompted variables:
    - `DATABASE_URL`: the Neon string
    - `WEB_ORIGIN`: your Vercel URL, e.g. `https://de100-tracker.vercel.app`

@@ -5,7 +5,7 @@ services:
     name: de100-tracker-api
     runtime: node
     plan: free
-    region: frankfurt
+    region: ohio            # same AWS region as the Neon database (us-east-2): ~1 ms per query instead of ~110 ms
     rootDir: backend
     # NODE_ENV=production would make `npm ci` skip devDependencies, but the build needs the Nest CLI.
     buildCommand: npm ci --include=dev && npm run build
@@ -21,7 +21,7 @@ services:
         generateValue: true
       - key: TRUST_PROXY_HOPS
         value: "2"            # browser -> Vercel rewrite -> Render proxy -> app
-      - key: DATABASE_URL     # Neon connection string (with ?sslmode=require)
+      - key: DATABASE_URL     # Neon connection string, ending in ?sslmode=verify-full
         sync: false
       - key: WEB_ORIGIN       # e.g. https://de100-tracker.vercel.app
         sync: false
