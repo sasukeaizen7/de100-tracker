@@ -59,14 +59,14 @@ All routes are under `/api`. Everything except `auth/*` and `health` needs `Auth
 | GET / POST | `notes` | List pages / create one `{title?, parentId?}` |
 | GET / PUT / DELETE | `notes/:id` | Read / autosave `{title?, icon?, content?}` / delete with sub-pages |
 | PATCH | `notes/:id/move` | `{parentId, position}` (refuses cycles) |
-| POST | `notes/images` | Upload a photo (multipart `file`, PNG/JPEG/GIF/WebP, max 5 MB) |
+| POST | `notes/images` | Upload a photo (multipart `file`, PNG/JPEG/GIF/WebP, max 4 MB) |
 | GET | `images/:id?sig=…` | Serve a photo; the HMAC-signed URL is the permission |
 
 ## Notes
 
 The **Notes** tab is a Notion-style editor (TipTap) with nested pages and page icons, headings, text colors and highlights, font sizes (12–48 px), bold/italic/underline/strike, lists and to-dos, quotes, code blocks, links, **photos** (upload button, paste, or drag and drop; resizable) and **math formulas** (inline or block, written in LaTeX with a live KaTeX preview and templates). Type `/` in a page for quick commands. Changes autosave.
 
-Content is stored as TipTap JSON and checked on the server by an allowlist (`backend/src/notes/note-content.ts`): unknown blocks are rejected, colors, sizes and links must match strict patterns, and images must be ones uploaded to your notes. Photos are type-checked by their bytes (SVG is refused), limited to 5 MB each and 200 MB per account, and served with `sandbox` CSP. Notes and photos are included in the data export and deleted with the account.
+Content is stored as TipTap JSON and checked on the server by an allowlist (`backend/src/notes/note-content.ts`): unknown blocks are rejected, colors, sizes and links must match strict patterns, and images must be ones uploaded to your notes. Photos are type-checked by their bytes (SVG is refused), limited to 4 MB each and 200 MB per account, and served with `sandbox` CSP. Notes and photos are included in the data export and deleted with the account.
 
 ## Security
 
@@ -85,7 +85,10 @@ Content is stored as TipTap JSON and checked on the server by an allowlist (`bac
 ```bash
 cd backend && npm test
 ```
-This runs 36 tests: title matching, user isolation, validation, registration, login, lockout, password change, cookie refresh, token rotation and replay detection, disconnect, sign-out-others, live events, account deletion, rate limiting, and notes (privacy, content sanitizing, photo uploads and signed URLs, sub-pages). They run against an in-memory database.
+This runs 36 tests: title matching, user isolation, validation, registration, login, lockout, password change, cookie refresh, token rotation and replay detection, disconnect, sign-out-others, live events, account deletion, rate limiting, and notes (privacy, content sanitizing, photo uploads and signed URLs, sub-pages). They run against an in-memory database. To run them against a real, empty PostgreSQL instead (as in production):
+```bash
+cd backend && TEST_DATABASE_URL=postgresql://user@localhost:5432/de100_test npm test
+```
 
 ```bash
 cd web && npm test
@@ -94,16 +97,35 @@ This checks the 100-day plan data: 100 days, Build & Share days, 14 posts in ord
 
 ## Chrome extension
 
-1. Copy `extension/config.example.js` to `extension/config.js` and set `API_URL` and `WEB_APP_URL`.
-2. In `extension/manifest.json`, set `host_permissions` to Udemy plus your API host (it's `http://localhost:3000/*` for dev).
+1. Copy `extension/config.example.js` to `extension/config.js` and set `API_URL` and `WEB_APP_URL` (in production: `https://<your-app>.vercel.app/api` and `https://<your-app>.vercel.app`).
+2. In `extension/manifest.json`, set `host_permissions` to Udemy plus your API host (`http://localhost:3000/*` for dev, your Vercel domain in production).
 3. Open `chrome://extensions`, enable Developer mode, click **Load unpacked**, and choose `extension/`.
 4. Add the extension ID to `EXTENSION_IDS` in `backend/.env` (needed for Google sign-in and CORS).
 5. Create your account in the web app first, then sign in from the popup with the same email and password and click **Sync Udemy progress**.
 
-## Deploying
+## Deploying (Vercel + Render + Neon)
 
-- **API:** any Node host (Render, Railway, Fly.io, a VPS) plus managed Postgres. Set `NODE_ENV=production`, `DATABASE_URL`, `JWT_SECRET` (48+ random characters), `WEB_ORIGIN`, `API_PUBLIC_URL` and `EXTENSION_IDS`. The API refuses to start in production without the secrets it needs. Then run `npm run build && npm start`.
-- **Web:** deploy `web/` to Vercel and replace `YOUR-API-HOST` in `web/vercel.json`. The web app calls `/api` on its own domain and Vercel proxies it to the API, so the cookie stays first-party.
+```
+browser ──> Vercel (web app, static) ──/api/*──> Render (NestJS API) ──> Neon (PostgreSQL)
+```
+The browser only talks to the Vercel domain: `web/vercel.json` forwards `/api/*` to Render, so the refresh cookie stays first-party.
+
+1. **Database, Neon:** create a free project in an EU region (Frankfurt) and copy its connection string. Keep `?sslmode=require`.
+2. **API, Render:** *New → Blueprint*, pick this GitHub repo; `render.yaml` defines the service (`backend/`, Node 24, health check `/api/health`, a generated `JWT_SECRET`). Fill in the prompted variables:
+   - `DATABASE_URL`: the Neon string
+   - `WEB_ORIGIN`: your Vercel URL, e.g. `https://de100-tracker.vercel.app`
+   - `API_PUBLIC_URL`: the same URL followed by `/api`
+
+   Migrations run automatically at startup.
+3. **Web, Vercel:** *Add New → Project*, import the repo, set **Root Directory = `web`**. Vite is auto-detected. If Render gave the API a different URL than `de100-tracker-api.onrender.com`, update the rewrite in `web/vercel.json`.
+4. Open the Vercel URL and create your account.
+
+Notes:
+- Render's free tier sleeps after 15 minutes idle: the first request after a pause takes about 30–50 seconds.
+- Photos are limited to 4 MB because Vercel caps proxied request bodies at 4.5 MB.
+- `TRUST_PROXY_HOPS=2` (Vercel + Render) lets rate limiting see the real client IP.
+- The API refuses to start in production without `JWT_SECRET` and `DATABASE_URL`.
+
 - **Google (optional):** create an OAuth client of type "Web application" with the redirect URI `${API_PUBLIC_URL}/auth/google/callback`, and set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
 - **Scaling beyond one API instance:** live events are in-process, so swap `EventsService` for Postgres `LISTEN/NOTIFY` or Redis first.
 

@@ -11,7 +11,8 @@ export async function createApp(config: AppConfig): Promise<INestApplication> {
     logger: process.env.NODE_ENV === 'test' ? false : undefined,
   });
 
-  app.set('trust proxy', 1); // behind Vercel / a load balancer: real client IPs for rate limiting
+  // Real client IPs for rate limiting: trust exactly the proxies in front of us (Vercel rewrite + Render = 2).
+  app.set('trust proxy', config.trustProxyHops);
   app.setGlobalPrefix('api');
   app.use(helmet());
   app.use(cookieParser());

@@ -5,7 +5,8 @@ import { DB, Db } from '../db/database';
 import { noteImages } from '../db/schema';
 import { hmac, safeEqual } from '../common/crypto';
 
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// 4 MB: uploads pass through the Vercel /api rewrite, which caps request bodies at 4.5 MB.
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const QUOTA_BYTES = 200 * 1024 * 1024;
 
 // Detect the real type from the file's bytes, never from the filename or the
@@ -34,7 +35,7 @@ export class ImagesService {
 
   async upload(userId: string, file: Express.Multer.File | undefined) {
     if (!file?.buffer?.length) throw new BadRequestException('No image received');
-    if (file.size > MAX_IMAGE_BYTES) throw new PayloadTooLargeException('Images can be at most 5 MB');
+    if (file.size > MAX_IMAGE_BYTES) throw new PayloadTooLargeException('Images can be at most 4 MB');
     const mime = sniffImage(file.buffer);
     if (!mime) throw new BadRequestException('Only PNG, JPEG, GIF and WebP images are supported');
 

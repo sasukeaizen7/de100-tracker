@@ -6,10 +6,12 @@ import { loadConfig } from '../src/config';
 
 export const EXT_ID = 'abcdefghijklmnopabcdefghijklmnop';
 
+// Tests run on in-memory PGlite. Set TEST_DATABASE_URL to run them against a real (empty) PostgreSQL instead.
 export async function testApp(env: Record<string, string> = {}) {
   const config = loadConfig({
     NODE_ENV: 'test',
     PGLITE_DIR: 'memory',
+    ...(process.env.TEST_DATABASE_URL && { DATABASE_URL: process.env.TEST_DATABASE_URL }),
     JWT_SECRET: 'test-secret-that-is-at-least-32-characters-long',
     WEB_ORIGIN: 'http://localhost:5173',
     EXTENSION_IDS: EXT_ID,

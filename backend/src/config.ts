@@ -12,6 +12,7 @@ export interface AppConfig {
   extensionIds: string[];
   google: { clientId: string; clientSecret: string } | null;
   rateLimit: boolean;
+  trustProxyHops: number; // reverse proxies in front of the API (Vercel rewrite + Render = 2)
 }
 
 export const CONFIG = Symbol('CONFIG');
@@ -47,5 +48,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     extensionIds: (env.EXTENSION_IDS ?? '').split(',').map((s) => s.trim()).filter((s) => /^[a-p]{32}$/.test(s)),
     google: googleId && googleSecret ? { clientId: googleId, clientSecret: googleSecret } : null,
     rateLimit: env.RATE_LIMIT !== 'off',
+    trustProxyHops: Number(env.TRUST_PROXY_HOPS ?? 1),
   };
 }

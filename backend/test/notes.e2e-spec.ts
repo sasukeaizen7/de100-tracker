@@ -74,8 +74,8 @@ describe('notes', () => {
     await http.put(`/api/notes/${note.id}`).set(alice.auth).send({ content: { type: 'doc', content: [{ type: 'image', attrs: { src: up.url, alt: 'pixel' } }] } }).expect(200);
   });
 
-  it('rejects images over 5 MB', async () => {
-    const big = Buffer.concat([PNG, Buffer.alloc(5 * 1024 * 1024 + 1)]);
+  it('rejects images over 4 MB', async () => {
+    const big = Buffer.concat([PNG, Buffer.alloc(4 * 1024 * 1024 + 1)]);
     const res = await http.post('/api/notes/images').set(alice.auth).attach('file', big, 'big.png');
     expect(res.status).toBe(413);
   });

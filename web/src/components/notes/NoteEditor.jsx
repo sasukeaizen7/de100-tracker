@@ -70,7 +70,7 @@ export default function NoteEditor({ note, onTitleChange }) {
     const images = [...files].filter((f) => ACCEPTED_IMAGES.split(',').includes(f.type));
     if (!images.length) return false;
     for (const file of images) {
-      if (file.size > 5 * 1024 * 1024) { setError(`${file.name} is larger than 5 MB`); continue; }
+      if (file.size > 4 * 1024 * 1024) { setError(`${file.name} is larger than 4 MB`); continue; }
       try {
         setStatus('saving');
         const { url } = await uploadImage(file);
