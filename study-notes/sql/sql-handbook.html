@@ -1,0 +1,1940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Handbook</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hl-light">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hl-dark" disabled>
+<style>
+:root {
+  --bg: #fbfbfa; --surface: #ffffff; --surface-2: #f3f2ef; --border: #e3e1dc;
+  --text: #1f1e1c; --muted: #6b6862; --accent: #2f5fd0; --accent-soft: #e8eefc;
+  --good: #1e7a4c; --good-soft: #e5f4ec; --warn: #9a5b00; --warn-soft: #fdf1dc;
+  --bad: #b3261e; --bad-soft: #fbe7e5; --code-bg: #f6f6f4;
+  --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --surface: #1e1e1c; --surface-2: #262624; --border: #353431;
+    --text: #ecebe8; --muted: #a3a09a; --accent: #8fb0ff; --accent-soft: #23304d;
+    --good: #6fd19d; --good-soft: #1b3326; --warn: #f0b860; --warn-soft: #3a2c14;
+    --bad: #ff8a80; --bad-soft: #3d1e1b; --code-bg: #1a1a19;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161615; --surface: #1e1e1c; --surface-2: #262624; --border: #353431;
+  --text: #ecebe8; --muted: #a3a09a; --accent: #8fb0ff; --accent-soft: #23304d;
+  --good: #6fd19d; --good-soft: #1b3326; --warn: #f0b860; --warn-soft: #3a2c14;
+  --bad: #ff8a80; --bad-soft: #3d1e1b; --code-bg: #1a1a19;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 var(--sans); }
+a { color: var(--accent); }
+.layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: 100vh; }
+aside {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; border-right: 1px solid var(--border);
+  background: var(--surface); padding: 20px 16px 40px;
+}
+.brand { font-weight: 700; font-size: 18px; margin: 0 0 2px; }
+.brand-sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+.tools { display: flex; gap: 8px; margin-bottom: 12px; }
+#search {
+  flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--text); font: inherit; font-size: 14px;
+}
+button {
+  font: inherit; font-size: 13px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface-2); color: var(--text); padding: 6px 10px;
+}
+button:hover { border-color: var(--accent); }
+.progress { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.bar span { display: block; height: 100%; background: var(--good); width: 0; transition: width .3s; }
+nav ol { list-style: none; padding: 0; margin: 0; counter-reset: n; }
+nav li a {
+  display: flex; gap: 8px; align-items: baseline; padding: 5px 8px; border-radius: 6px;
+  text-decoration: none; color: var(--text); font-size: 14px;
+}
+nav li a:hover { background: var(--surface-2); }
+nav li a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+nav li a .num { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 20px; font-size: 12px; }
+nav li a.done::after { content: "✓"; margin-left: auto; color: var(--good); }
+nav li.hidden { display: none; }
+main { padding: 40px 48px 120px; max-width: 980px; }
+header.hero h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; }
+header.hero p { color: var(--muted); margin: 0 0 6px; max-width: 70ch; }
+section.chapter { padding-top: 24px; margin-top: 32px; border-top: 1px solid var(--border); }
+section.chapter.hidden { display: none; }
+h2 { font-size: 26px; margin: 0 0 4px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+h2 .chap { color: var(--muted); font-size: 16px; font-weight: 500; }
+.chapter-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+.chapter-meta label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+h3 { font-size: 19px; margin: 28px 0 6px; }
+h4 { font-size: 16px; margin: 20px 0 4px; }
+p, li { max-width: 75ch; }
+code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+figure.code { margin: 12px 0 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--code-bg); }
+figure.code .code-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 6px 10px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+figure.code .code-head button { padding: 2px 8px; font-size: 12px; }
+figure.code pre { margin: 0; overflow-x: auto; }
+figure.code pre code { display: block; padding: 12px 14px; background: transparent !important; font-size: 13.5px; line-height: 1.55; }
+.norun-tag { color: var(--warn); }
+.table-wrap { overflow-x: auto; margin: 12px 0 16px; border: 1px solid var(--border); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+td code { white-space: nowrap; }
+.yes { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.part { color: var(--warn); font-weight: 600; }
+.callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+.callout.trap { border-color: var(--bad); background: var(--bad-soft); }
+.callout.tip { border-color: var(--good); background: var(--good-soft); }
+.callout.de { border-color: var(--warn); background: var(--warn-soft); }
+.callout > strong:first-child { display: block; margin-bottom: 2px; }
+.callout p { margin: 4px 0; }
+details { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin: 10px 0; background: var(--surface); }
+details summary { cursor: pointer; font-weight: 600; }
+details[open] summary { margin-bottom: 8px; }
+.pipeline { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 12px 0; font-family: var(--mono); font-size: 13px; }
+.pipeline span { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; }
+.pipeline i { color: var(--muted); font-style: normal; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.menu-toggle { display: none; }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }   /* plain 1fr grows to the widest table */
+  aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  aside nav { display: none; }
+  aside.open nav { display: block; }
+  .menu-toggle { display: inline-block; }
+  main { padding: 24px 16px 80px; }
+  header.hero h1 { font-size: 27px; }
+  .grid2 { grid-template-columns: 1fr; }
+}
+@media print {
+  aside { display: none; } .layout { display: block; } main { max-width: none; padding: 0; }
+  section.chapter.hidden { display: block; } figure.code .code-head button { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside id="sidebar">
+  <p class="brand">SQL Handbook</p>
+  <p class="brand-sub">PostgreSQL · from basics to data engineering</p>
+  <div class="tools">
+    <input id="search" type="search" placeholder="Search…  ( / )" aria-label="Search the handbook">
+    <button id="theme" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
+    <button class="menu-toggle" id="menu" aria-label="Show chapters">☰</button>
+  </div>
+  <div class="progress"><span id="progress-text">0 of 0 chapters revised</span><div class="bar"><span id="progress-bar"></span></div></div>
+  <nav><ol id="toc"></ol></nav>
+</aside>
+
+<main>
+<header class="hero">
+  <h1>SQL Handbook</h1>
+  <p>My revision guide for <em>The Complete SQL Bootcamp</em> and the <em>Advanced SQL Bootcamp</em> (Jose Portilla), plus the patterns data engineering interviews and jobs expect. Explanations, examples and comparison tables are my own.</p>
+  <p>Every example runs on the practice shop database: run <code>setup.sql</code> first (<code>psql -U postgres -d shop -f setup.sql</code>), then run the chapters in order. Tested on PostgreSQL 18.</p>
+  <p>Tick <strong>Revised</strong> at the top of a chapter when you can explain it without looking. Press <kbd>/</kbd> to search.</p>
+</header>
+
+<!-- ============================================================ -->
+<section class="chapter" id="model" data-title="How a query runs">
+<h2>How a query runs</h2>
+
+<h3>The practice database</h3>
+<div class="table-wrap"><table>
+<tr><th>Table / view</th><th>Grain (one row = …)</th><th>Notes</th></tr>
+<tr><td><code>customers</code></td><td>a customer</td><td>Karim never ordered; Chloé has no email</td></tr>
+<tr><td><code>products</code></td><td>a product</td><td>the Chain was never sold</td></tr>
+<tr><td><code>orders</code></td><td>an order</td><td>order 8 is a guest checkout (<code>customer_id</code> is NULL)</td></tr>
+<tr><td><code>order_items</code></td><td>a product in an order</td><td>primary key <code>(order_id, product_id)</code></td></tr>
+<tr><td><code>employees</code></td><td>an employee</td><td><code>manager_id</code> points to another employee</td></tr>
+<tr><td><code>events</code></td><td>a website event</td><td>JSON <code>payload</code>, used for sessions and streaks</td></tr>
+<tr><td><code>order_lines</code> (view)</td><td>a product in an order, with revenue</td><td>orders + items + products + city</td></tr>
+<tr><td><code>order_summary</code> (view)</td><td>an order, with its total</td><td>built on <code>order_lines</code></td></tr>
+</table></div>
+<div class="callout tip"><strong>Always ask "what is the grain?"</strong><p>Before writing a join or an aggregate, say out loud what one row of each table means. Most wrong numbers in real pipelines come from mixing grains (summing an order-level value on an item-level table).</p></div>
+
+<h3>Logical order of execution</h3>
+<p>You write <code>SELECT</code> first, but the database evaluates the clauses in this order:</p>
+<div class="pipeline"><span>FROM / JOIN</span><i>→</i><span>WHERE</span><i>→</i><span>GROUP BY</span><i>→</i><span>HAVING</span><i>→</i><span>SELECT</span><i>→</i><span>window functions</span><i>→</i><span>DISTINCT</span><i>→</i><span>UNION</span><i>→</i><span>ORDER BY</span><i>→</i><span>LIMIT / OFFSET</span></div>
+<p>This order explains most "why doesn't this work?" moments:</p>
+<div class="table-wrap"><table>
+<tr><th>Symptom</th><th>Reason</th><th>Fix</th></tr>
+<tr><td>A <code>SELECT</code> alias fails in <code>WHERE</code></td><td><code>WHERE</code> runs before <code>SELECT</code></td><td>repeat the expression, or wrap in a subquery / CTE</td></tr>
+<tr><td>An alias works in <code>ORDER BY</code></td><td><code>ORDER BY</code> runs after <code>SELECT</code></td><td>—</td></tr>
+<tr><td>Aggregates are not allowed in <code>WHERE</code></td><td>groups don't exist yet</td><td>use <code>HAVING</code></td></tr>
+<tr><td>Window functions are not allowed in <code>WHERE</code></td><td>they are computed after <code>WHERE</code> and <code>HAVING</code></td><td>filter in an outer query (Postgres has no <code>QUALIFY</code>)</td></tr>
+<tr><td><code>LIMIT</code> without <code>ORDER BY</code> returns "random" rows</td><td>tables have no inherent order</td><td>always order before limiting</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Filtering on an alias: wrap it">
+select * from (
+  select name, price, round(price * 1.2, 2) as price_ttc
+  from products
+) p
+where price_ttc > 100
+order by price_ttc desc;
+</script>
+
+<h3>NULL and three-valued logic</h3>
+<p>NULL means "unknown". Any comparison with NULL is itself unknown (NULL), and <code>WHERE</code> keeps only rows where the condition is <em>true</em>.</p>
+<div class="table-wrap"><table>
+<tr><th>Expression</th><th>Result</th><th>Why</th></tr>
+<tr><td><code>NULL = NULL</code></td><td>NULL</td><td>two unknowns are not known to be equal</td></tr>
+<tr><td><code>NULL IS NULL</code></td><td>true</td><td>the only correct test</td></tr>
+<tr><td><code>NULL IS DISTINCT FROM NULL</code></td><td>false</td><td>NULL-safe comparison: treats NULLs as equal</td></tr>
+<tr><td><code>1 IS DISTINCT FROM NULL</code></td><td>true</td><td>use it to detect changes in pipelines</td></tr>
+<tr><td><code>true AND NULL</code></td><td>NULL</td><td>could be true or false</td></tr>
+<tr><td><code>false AND NULL</code></td><td>false</td><td>false whatever the unknown is</td></tr>
+<tr><td><code>true OR NULL</code></td><td>true</td><td>true whatever the unknown is</td></tr>
+<tr><td><code>NOT NULL</code></td><td>NULL</td><td>the opposite of unknown is unknown</td></tr>
+<tr><td><code>5 + NULL</code></td><td>NULL</td><td>arithmetic propagates NULL</td></tr>
+<tr><td><code>count(col)</code>, <code>sum(col)</code></td><td>ignore NULLs</td><td><code>count(*)</code> counts rows</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="NULL-safe comparisons">
+select first_name, email,
+       email = null                    as wrong_test,   -- always NULL
+       email is null                   as right_test,
+       email is distinct from 'x@y.fr' as changed
+from customers;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="basics" data-title="Querying basics">
+<h2>Querying basics</h2>
+<p>A compact recap of the first bootcamp. My detailed notes are in <code>01-complete-sql-bootcamp.md</code>.</p>
+<script type="text/x-sql" data-title="SELECT, WHERE, ORDER BY, LIMIT/OFFSET">
+select name, category, price
+from products
+where category in ('accessories', 'parts')
+  and price between 15 and 50          -- inclusive
+order by price desc, name
+limit 3 offset 1;                      -- skip the most expensive, take the next 3
+</script>
+
+<h3>Pattern matching compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Operator</th><th>Example</th><th>Case</th><th>Use for</th></tr>
+<tr><td><code>LIKE</code></td><td><code>email LIKE '%@mail.fr'</code></td><td>sensitive</td><td>simple prefixes/suffixes (<code>%</code> any text, <code>_</code> one character)</td></tr>
+<tr><td><code>ILIKE</code></td><td><code>name ILIKE '%bike%'</code></td><td>insensitive</td><td>Postgres-only shortcut for <code>lower(x) LIKE …</code></td></tr>
+<tr><td><code>~</code> / <code>~*</code></td><td><code>email ~ '^[a-z]+@'</code></td><td>sensitive / insensitive</td><td>POSIX regular expressions (validation, extraction)</td></tr>
+<tr><td><code>SIMILAR TO</code></td><td><code>city SIMILAR TO '(Paris|Lyon)'</code></td><td>sensitive</td><td>rarely worth it: use <code>~</code> instead</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Regular expressions">
+select email,
+       email ~ '^[^@\s]+@[^@\s]+\.[a-z]{2,}$'      as looks_valid,
+       substring(email from '@(.*)$')              as domain,
+       regexp_replace(email, '^(.).*@', '\1***@')  as masked
+from customers
+where email is not null;
+</script>
+
+<h3>DISTINCT vs DISTINCT ON</h3>
+<script type="text/x-sql" data-title="DISTINCT ON: first row per group (Postgres and DuckDB)">
+-- each customer's most recent order
+select distinct on (customer_id) customer_id, order_id, ordered_at
+from orders
+where customer_id is not null
+order by customer_id, ordered_at desc;   -- ORDER BY must start with the DISTINCT ON columns
+</script>
+<div class="table-wrap"><table>
+<tr><th></th><th><code>DISTINCT</code></th><th><code>DISTINCT ON (cols)</code></th><th><code>row_number() = 1</code></th></tr>
+<tr><td>Keeps</td><td>unique combinations of <em>all</em> selected columns</td><td>first row per group, by <code>ORDER BY</code></td><td>first row per group, by the window's order</td></tr>
+<tr><td>Portable</td><td class="yes">everywhere</td><td class="part">Postgres, DuckDB</td><td class="yes">everywhere</td></tr>
+<tr><td>Top-N (not just top-1)</td><td class="no">no</td><td class="no">no</td><td class="yes">yes (<code>rn &lt;= 3</code>)</td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="aggregation" data-title="Aggregation and grouping sets">
+<h2>Aggregation and grouping sets</h2>
+
+<h3>Aggregate functions</h3>
+<div class="table-wrap"><table>
+<tr><th>Function</th><th>Returns</th><th>NULLs</th></tr>
+<tr><td><code>count(*)</code></td><td>number of rows</td><td>counted</td></tr>
+<tr><td><code>count(col)</code> / <code>count(distinct col)</code></td><td>non-null values / distinct non-null values</td><td>ignored</td></tr>
+<tr><td><code>sum</code>, <code>avg</code>, <code>min</code>, <code>max</code></td><td>as named; <code>sum</code> of zero rows is NULL, not 0</td><td>ignored</td></tr>
+<tr><td><code>string_agg(col, ', ' order by …)</code></td><td>concatenated text</td><td>ignored</td></tr>
+<tr><td><code>array_agg(col order by …)</code></td><td>an array</td><td>kept</td></tr>
+<tr><td><code>bool_and</code> / <code>bool_or</code></td><td>all true / any true</td><td>ignored</td></tr>
+<tr><td><code>percentile_cont(0.5) within group (order by x)</code></td><td>interpolated median</td><td>ignored</td></tr>
+<tr><td><code>percentile_disc(0.5) within group (order by x)</code></td><td>an actual value from the data</td><td>ignored</td></tr>
+<tr><td><code>mode() within group (order by x)</code></td><td>most frequent value</td><td>ignored</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Several aggregates at once">
+select category,
+       count(*)                                     as products,
+       round(avg(price), 2)                         as avg_price,
+       percentile_cont(0.5) within group (order by price) as median_price,
+       string_agg(name, ', ' order by price desc)   as names
+from products
+group by category
+order by products desc;
+</script>
+
+<h3>WHERE vs HAVING vs FILTER</h3>
+<div class="table-wrap"><table>
+<tr><th>Clause</th><th>Runs</th><th>Filters</th><th>Example</th></tr>
+<tr><td><code>WHERE</code></td><td>before grouping</td><td>rows</td><td><code>where status &lt;&gt; 'cancelled'</code></td></tr>
+<tr><td><code>HAVING</code></td><td>after grouping</td><td>groups</td><td><code>having count(*) &gt;= 2</code></td></tr>
+<tr><td><code>FILTER (WHERE …)</code></td><td>inside one aggregate</td><td>rows fed to that aggregate only</td><td><code>count(*) filter (where status = 'paid')</code></td></tr>
+</table></div>
+<script type="text/x-sql" data-title="All three together">
+select customer_id,
+       count(*)                                    as orders,
+       count(*) filter (where status = 'shipped')  as shipped,
+       sum(total) filter (where status = 'paid')   as unpaid_value
+from order_summary
+where customer_id is not null          -- rows
+group by customer_id
+having count(*) >= 2;                  -- groups
+</script>
+
+<h3>GROUPING SETS, ROLLUP, CUBE</h3>
+<p>One query, several levels of aggregation: the subtotals and grand total you would otherwise get by stacking several <code>GROUP BY</code> queries with <code>UNION ALL</code>.</p>
+<div class="table-wrap"><table>
+<tr><th>Syntax</th><th>Groupings produced for <code>(city, category)</code></th><th>Typical use</th></tr>
+<tr><td><code>GROUPING SETS ((city, category), (city), ())</code></td><td>exactly the ones you list</td><td>custom report levels</td></tr>
+<tr><td><code>ROLLUP (city, category)</code></td><td>(city, category), (city), () — a hierarchy</td><td>subtotals per level + grand total (year → month → day)</td></tr>
+<tr><td><code>CUBE (city, category)</code></td><td>every combination: (city, category), (city), (category), ()</td><td>cross-tab with all margins</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="ROLLUP with readable labels">
+select coalesce(city, case when grouping(city) = 1 then 'ALL CITIES' else 'guest' end) as city,
+       case when grouping(category) = 1 then 'ALL' else category end              as category,
+       sum(revenue) as revenue
+from order_lines
+where status <> 'cancelled'
+group by rollup (city, category)
+order by grouping(city), city, grouping(category), category;
+</script>
+<div class="callout trap"><strong>Subtotal NULL vs real NULL</strong><p>A subtotal row shows NULL in the rolled-up column, and so does a real NULL (the guest order has no city). <code>grouping(col)</code> returns 1 only for subtotal rows: use it to tell them apart, as above.</p></div>
+<script type="text/x-sql" data-title="CUBE">
+select category, status, count(*) as lines, sum(revenue) as revenue
+from order_lines
+group by cube (category, status)
+order by category nulls last, status nulls last;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="joins" data-title="Joins">
+<h2>Joins</h2>
+
+<h3>Every join type compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Join</th><th>Returns</th><th>Rows for unmatched left</th><th>Rows for unmatched right</th><th>Typical use</th></tr>
+<tr><td><code>INNER JOIN</code></td><td>matching pairs</td><td class="no">dropped</td><td class="no">dropped</td><td>facts that must have a dimension</td></tr>
+<tr><td><code>LEFT JOIN</code></td><td>all left + matches</td><td class="yes">kept, NULLs on the right</td><td class="no">dropped</td><td>"all customers, with their orders if any"</td></tr>
+<tr><td><code>RIGHT JOIN</code></td><td>all right + matches</td><td class="no">dropped</td><td class="yes">kept</td><td>rewrite as a <code>LEFT JOIN</code> for readability</td></tr>
+<tr><td><code>FULL JOIN</code></td><td>everything</td><td class="yes">kept</td><td class="yes">kept</td><td>reconciling two sources</td></tr>
+<tr><td><code>CROSS JOIN</code></td><td>every combination (n × m)</td><td>—</td><td>—</td><td>calendars × stores, generating grids</td></tr>
+<tr><td>Self join</td><td>a table joined to itself</td><td colspan="2">depends on the join type used</td><td>hierarchies, comparing rows</td></tr>
+<tr><td>Semi join (<code>EXISTS</code>)</td><td>left rows that have a match, once</td><td class="no">dropped</td><td>—</td><td>"customers who ordered" without duplicates</td></tr>
+<tr><td>Anti join (<code>NOT EXISTS</code>)</td><td>left rows without a match</td><td class="yes">only these</td><td>—</td><td>orphans, never-sold products</td></tr>
+<tr><td><code>LATERAL</code></td><td>a subquery run per left row</td><td colspan="2"><code>CROSS</code> drops, <code>LEFT … ON true</code> keeps</td><td>top-N per row, calling a function per row</td></tr>
+</table></div>
+
+<h3>ON vs USING vs NATURAL</h3>
+<div class="table-wrap"><table>
+<tr><th>Form</th><th>Example</th><th>Output columns</th><th>Verdict</th></tr>
+<tr><td><code>ON</code></td><td><code>join orders o on o.customer_id = c.customer_id</code></td><td>both <code>customer_id</code> columns</td><td class="yes">default choice; any condition</td></tr>
+<tr><td><code>USING</code></td><td><code>join orders using (customer_id)</code></td><td>one merged <code>customer_id</code></td><td class="yes">fine when the key has the same name</td></tr>
+<tr><td><code>NATURAL</code></td><td><code>natural join orders</code></td><td>joins on <em>every</em> same-named column</td><td class="no">avoid: adding a column like <code>created_at</code> silently changes the join</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Left join + anti join + full join">
+-- all customers with their order count (Karim: 0)
+select c.first_name, count(o.order_id) as orders
+from customers c
+left join orders o on o.customer_id = c.customer_id
+group by c.customer_id, c.first_name
+order by orders desc;
+
+-- anti join: products never sold
+select p.name
+from products p
+where not exists (select 1 from order_items oi where oi.product_id = p.product_id);
+
+-- reconcile: customers without orders and orders without customers
+select c.first_name, o.order_id
+from customers c
+full join orders o on o.customer_id = c.customer_id
+where c.customer_id is null or o.order_id is null;
+</script>
+
+<h3>Cross join and self join</h3>
+<script type="text/x-sql" data-title="CROSS JOIN builds a complete grid">
+-- every (month, category) pair, even with no sales, so the report has no holes
+select m.month::date, c.category, coalesce(sum(l.revenue), 0) as revenue
+from generate_series('2026-01-01'::date, '2026-04-01', interval '1 month') as m(month)
+cross join (select distinct category from products) c
+left join order_lines l
+  on date_trunc('month', l.ordered_at) = m.month and l.category = c.category
+group by m.month, c.category
+order by m.month, c.category;
+</script>
+<script type="text/x-sql" data-title="Self join: compare rows of the same table">
+-- employee → manager
+select e.name as employee, coalesce(m.name, '—') as manager
+from employees e
+left join employees m on m.employee_id = e.manager_id;
+
+-- pairs of products in the same category (a.id < b.id avoids self-pairs and duplicates)
+select a.name, b.name, a.category
+from products a
+join products b on a.category = b.category and a.product_id < b.product_id;
+</script>
+
+<h3>LATERAL</h3>
+<script type="text/x-sql" data-title="Top 2 most recent orders per customer">
+select c.first_name, last2.order_id, last2.ordered_at
+from customers c
+left join lateral (
+  select o.order_id, o.ordered_at
+  from orders o
+  where o.customer_id = c.customer_id      -- refers to the outer row: only LATERAL allows this
+  order by o.ordered_at desc
+  limit 2
+) last2 on true
+order by c.first_name, last2.ordered_at desc;
+</script>
+
+<div class="callout trap"><strong>Three join traps</strong>
+<p><b>Fan-out:</b> joining one order to its 3 items gives 3 rows. Summing an order-level amount after that join triples it. Aggregate to the right grain first, then join.</p>
+<p><b>Left join turned inner:</b> <code>LEFT JOIN orders o … WHERE o.status = 'paid'</code> removes customers without orders (their <code>o.status</code> is NULL). Put the condition in <code>ON</code> to keep them.</p>
+<p><b>NULL keys never match:</b> <code>NULL = NULL</code> is not true, so rows with NULL join keys disappear from inner joins.</p></div>
+<script type="text/x-sql" data-title="Condition in ON vs WHERE">
+-- keeps every customer; counts only their paid orders
+select c.first_name, count(o.order_id) as paid_orders
+from customers c
+left join orders o on o.customer_id = c.customer_id and o.status = 'paid'
+group by c.customer_id, c.first_name;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="subqueries" data-title="Subqueries and CTEs">
+<h2>Subqueries and CTEs</h2>
+
+<h3>Kinds of subquery</h3>
+<div class="table-wrap"><table>
+<tr><th>Kind</th><th>Returns</th><th>Where it goes</th><th>Example</th></tr>
+<tr><td>Scalar</td><td>one value</td><td><code>SELECT</code>, <code>WHERE</code></td><td><code>price &gt; (select avg(price) from products)</code></td></tr>
+<tr><td>Row / list</td><td>one column, many rows</td><td><code>IN</code>, <code>ANY</code>, <code>ALL</code></td><td><code>customer_id in (select customer_id from orders)</code></td></tr>
+<tr><td>Table (derived table)</td><td>a result set</td><td><code>FROM</code> (needs an alias)</td><td><code>from (select …) t</code></td></tr>
+<tr><td>Correlated</td><td>re-evaluated per outer row</td><td>anywhere</td><td><code>where exists (select 1 … where o.customer_id = c.customer_id)</code></td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Subquery in FROM, and a correlated subquery">
+-- average order value per customer, from a derived table
+select customer_id, round(avg(total), 2) as avg_order
+from (select customer_id, total from order_summary where status <> 'cancelled') t
+where customer_id is not null
+group by customer_id;
+
+-- each product with its category's average (correlated)
+select name, category, price,
+       (select round(avg(p2.price), 2) from products p2 where p2.category = p.category) as category_avg
+from products p;
+</script>
+
+<h3>IN, ANY, ALL, EXISTS compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Operator</th><th>True when</th><th>Empty subquery</th><th>Subquery contains NULL</th></tr>
+<tr><td><code>x IN (sub)</code></td><td>x equals at least one value</td><td>false</td><td>true if a match exists, otherwise NULL</td></tr>
+<tr><td><code>x NOT IN (sub)</code></td><td>x equals none</td><td>true</td><td class="no">never true → returns no rows</td></tr>
+<tr><td><code>x &gt; ANY (sub)</code></td><td>bigger than at least one</td><td>false</td><td>true if satisfied by a value, otherwise NULL</td></tr>
+<tr><td><code>x &gt; ALL (sub)</code></td><td>bigger than every value</td><td class="part">true (vacuously!)</td><td>never true if a NULL is there</td></tr>
+<tr><td><code>EXISTS (sub)</code></td><td>sub returns at least one row</td><td>false</td><td class="yes">unaffected</td></tr>
+<tr><td><code>NOT EXISTS (sub)</code></td><td>sub returns no rows</td><td>true</td><td class="yes">unaffected</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="The NOT IN trap with the guest order">
+-- returns NOTHING: orders.customer_id contains a NULL (the guest checkout)
+select first_name from customers
+where customer_id not in (select customer_id from orders);
+
+-- correct: Karim
+select first_name from customers c
+where not exists (select 1 from orders o where o.customer_id = c.customer_id);
+</script>
+<script type="text/x-sql" data-title="ANY and ALL">
+-- products pricier than every accessory
+select name, price from products
+where price > all (select price from products where category = 'accessories');
+
+-- = ANY works with arrays too
+select name from products where product_id = any (array[1, 3, 5]);
+</script>
+
+<h3>CTEs (WITH)</h3>
+<p>A CTE names a subquery so a long query reads top to bottom, one step per CTE. It's the way dbt models and most production SQL are written.</p>
+<script type="text/x-sql" data-title="A query in readable steps">
+with paid_orders as (
+  select * from order_summary where status <> 'cancelled'
+),
+customer_value as (
+  select customer_id, count(*) as orders, sum(total) as spent
+  from paid_orders
+  where customer_id is not null
+  group by customer_id
+)
+select c.first_name, v.orders, v.spent,
+       round(100.0 * v.spent / sum(v.spent) over (), 1) as pct_of_revenue
+from customer_value v
+join customers c using (customer_id)
+order by v.spent desc;
+</script>
+<div class="table-wrap"><table>
+<tr><th></th><th>Subquery</th><th>CTE</th><th>Temp table</th><th>View</th></tr>
+<tr><td>Lives for</td><td>the expression</td><td>the statement</td><td>the session</td><td>until dropped</td></tr>
+<tr><td>Reusable within the query</td><td class="no">no (repeat it)</td><td class="yes">yes, by name</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+<tr><td>Readability</td><td>poor when nested</td><td class="yes">best</td><td>good</td><td>good</td></tr>
+<tr><td>Can be indexed</td><td class="no">no</td><td class="no">no</td><td class="yes">yes</td><td class="no">no (materialized views: yes)</td></tr>
+<tr><td>Recursive</td><td class="no">no</td><td class="yes"><code>WITH RECURSIVE</code></td><td class="no">no</td><td class="yes"><code>CREATE RECURSIVE VIEW</code></td></tr>
+</table></div>
+<div class="callout"><strong>Performance note</strong><p>Since PostgreSQL 12, a CTE used once is inlined like a subquery. Add <code>AS MATERIALIZED</code> to force it to be computed once (useful for an expensive CTE used several times), or <code>AS NOT MATERIALIZED</code> to force inlining.</p></div>
+
+<h3>Recursive CTEs</h3>
+<p>Two parts joined by <code>UNION ALL</code>: the <b>anchor</b> (starting rows) and the <b>recursive part</b> (refers to the CTE itself, adds rows from the previous step). It stops when a step adds nothing.</p>
+<script type="text/x-sql" data-title="Walk a hierarchy: the org chart">
+with recursive org as (
+  select employee_id, name, manager_id, 0 as depth, name::text as path
+  from employees
+  where manager_id is null                                  -- anchor: the CEO
+  union all
+  select e.employee_id, e.name, e.manager_id, org.depth + 1, org.path || ' > ' || e.name
+  from employees e
+  join org on e.manager_id = org.employee_id                -- recursive step
+)
+select repeat('    ', depth) || name as tree, depth, path
+from org
+order by path;
+</script>
+<script type="text/x-sql" data-title="Generate a sequence without generate_series">
+with recursive days(d) as (
+  select date '2026-04-01'
+  union all
+  select d + 1 from days where d < date '2026-04-07'       -- the stop condition
+)
+select d, to_char(d, 'Dy') from days;
+</script>
+<div class="callout trap"><strong>Infinite recursion</strong><p>Always give the recursive part a stop condition (<code>where depth &lt; 10</code>, a date limit). If the data can contain cycles (A manages B, B manages A), track visited ids in an array and stop when the next id is already in it, or use Postgres's <code>CYCLE</code> clause.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="setops" data-title="Set operations">
+<h2>Set operations</h2>
+<p>Combine the <em>rows</em> of two queries with the same number of columns and compatible types (joins combine <em>columns</em>). Column names come from the first query.</p>
+<div class="table-wrap"><table>
+<tr><th>Operator</th><th>Keeps</th><th>Duplicates</th><th>Equivalent pattern</th></tr>
+<tr><td><code>UNION ALL</code></td><td>everything from both</td><td>kept</td><td>— (fastest: no dedup step)</td></tr>
+<tr><td><code>UNION</code></td><td>everything from both</td><td>removed</td><td><code>SELECT DISTINCT</code> over <code>UNION ALL</code></td></tr>
+<tr><td><code>INTERSECT</code></td><td>rows in both</td><td>removed (<code>INTERSECT ALL</code> keeps them)</td><td><code>EXISTS</code> semi join</td></tr>
+<tr><td><code>EXCEPT</code></td><td>rows in the first, not in the second</td><td>removed (<code>EXCEPT ALL</code> keeps them)</td><td><code>NOT EXISTS</code> anti join</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Who bought bikes AND accessories, accessories but NOT bikes">
+select customer_id from order_lines where category = 'bikes' and customer_id is not null
+intersect
+select customer_id from order_lines where category = 'accessories';
+
+select customer_id from order_lines where category = 'accessories' and customer_id is not null
+except
+select customer_id from order_lines where category = 'bikes';
+</script>
+<div class="callout tip"><strong>NULLs in set operations</strong><p>Unlike <code>=</code>, set operations treat two NULLs as equal (like <code>IS NOT DISTINCT FROM</code>). That makes <code>EXCEPT</code> a quick way to diff two tables: <code>(a EXCEPT b) UNION ALL (b EXCEPT a)</code> lists every row that differs.</p></div>
+<div class="callout de"><strong>Data engineering use</strong><p><code>UNION ALL</code> stacks monthly files or several sources into one table. Choose <code>UNION</code> only if you really want dedup: it sorts or hashes the whole result.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="windows" data-title="Window functions">
+<h2>Window functions</h2>
+<p>An aggregate collapses rows into one per group; a window function computes over a group of rows but <b>keeps every row</b>.</p>
+<div class="pipeline"><span>function(args)</span><i>OVER (</i><span>PARTITION BY … </span><span>ORDER BY …</span><span>frame</span><i>)</i></div>
+<div class="table-wrap"><table>
+<tr><th>Part</th><th>Meaning</th><th>If omitted</th></tr>
+<tr><td><code>PARTITION BY</code></td><td>restart the computation for each group</td><td>the whole result is one partition</td></tr>
+<tr><td><code>ORDER BY</code></td><td>order of rows inside the partition</td><td>no order: ranking is meaningless, aggregates cover the whole partition</td></tr>
+<tr><td>frame (<code>ROWS / RANGE / GROUPS BETWEEN …</code>)</td><td>which rows around the current one the function sees</td><td>with <code>ORDER BY</code>: start → current row (incl. ties); without: whole partition</td></tr>
+</table></div>
+
+<h3>Ranking functions compared</h3>
+<script type="text/x-sql" data-title="Same scores, five rankings">
+select score,
+       row_number()  over w as row_number,
+       rank()        over w as rank,
+       dense_rank()  over w as dense_rank,
+       round((percent_rank() over w)::numeric, 2) as percent_rank,   -- returns double: cast before round(x, 2)
+       round((cume_dist()    over w)::numeric, 2) as cume_dist,
+       ntile(2)      over w as ntile_2
+from (values (100), (90), (90), (80)) as t(score)
+window w as (order by score desc);
+</script>
+<div class="table-wrap"><table>
+<tr><th>score</th><th><code>row_number</code></th><th><code>rank</code></th><th><code>dense_rank</code></th><th><code>percent_rank</code></th><th><code>cume_dist</code></th><th><code>ntile(2)</code></th></tr>
+<tr><td>100</td><td>1</td><td>1</td><td>1</td><td>0.00</td><td>0.25</td><td>1</td></tr>
+<tr><td>90</td><td>2</td><td>2</td><td>2</td><td>0.33</td><td>0.75</td><td>1</td></tr>
+<tr><td>90</td><td>3</td><td>2</td><td>2</td><td>0.33</td><td>0.75</td><td>2</td></tr>
+<tr><td>80</td><td>4</td><td>4</td><td>3</td><td>1.00</td><td>1.00</td><td>2</td></tr>
+</table></div>
+<div class="table-wrap"><table>
+<tr><th>Function</th><th>Ties</th><th>Use it for</th></tr>
+<tr><td><code>row_number()</code></td><td>arbitrary unique numbers (make the order deterministic!)</td><td>dedup, top-1, pagination</td></tr>
+<tr><td><code>rank()</code></td><td>same rank, then a gap</td><td>competition ranking ("joint 2nd, then 4th")</td></tr>
+<tr><td><code>dense_rank()</code></td><td>same rank, no gap</td><td>"the 2nd highest price" (Nth distinct value)</td></tr>
+<tr><td><code>percent_rank()</code></td><td>(rank − 1) / (rows − 1)</td><td>relative position from 0 to 1</td></tr>
+<tr><td><code>cume_dist()</code></td><td>share of rows ≤ current</td><td>percentiles ("top 10% customers")</td></tr>
+<tr><td><code>ntile(n)</code></td><td>splits into n buckets of near-equal size</td><td>quartiles, deciles, A/B buckets</td></tr>
+</table></div>
+
+<h3>Offset and value functions</h3>
+<div class="table-wrap"><table>
+<tr><th>Function</th><th>Returns</th><th>Frame-sensitive?</th></tr>
+<tr><td><code>lag(x, n, default)</code></td><td>x from n rows before</td><td>no</td></tr>
+<tr><td><code>lead(x, n, default)</code></td><td>x from n rows after</td><td>no</td></tr>
+<tr><td><code>first_value(x)</code></td><td>x at the first row of the frame</td><td>yes</td></tr>
+<tr><td><code>last_value(x)</code></td><td>x at the last row of the <em>frame</em></td><td class="no">yes — trap, see below</td></tr>
+<tr><td><code>nth_value(x, n)</code></td><td>x at the nth row of the frame</td><td>yes</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Per customer: order number, previous order, gap, running total">
+select customer_id, order_id, ordered_at::date, total,
+       row_number() over c                      as nth_order,
+       lag(ordered_at::date) over c             as previous_order,
+       ordered_at::date - lag(ordered_at::date) over c as days_since_previous,
+       sum(total) over c                        as running_total,
+       first_value(total) over c                as first_order_total
+from order_summary
+where customer_id is not null and status <> 'cancelled'
+window c as (partition by customer_id order by ordered_at)
+order by customer_id, ordered_at;
+</script>
+
+<h3>Frames: ROWS vs RANGE vs GROUPS</h3>
+<div class="table-wrap"><table>
+<tr><th>Mode</th><th>Counts in</th><th><code>1 PRECEDING</code> means</th><th>Ties at current row</th></tr>
+<tr><td><code>ROWS</code></td><td>physical rows</td><td>the previous row</td><td>not included unless already passed</td></tr>
+<tr><td><code>RANGE</code> (default)</td><td>values of the <code>ORDER BY</code> column</td><td>rows whose value is within 1 of the current value</td><td class="part">all peers included</td></tr>
+<tr><td><code>GROUPS</code></td><td>groups of peers (ties)</td><td>the previous group of tied rows</td><td>whole peer group</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Why the default frame surprises people">
+select x,
+       sum(x) over (order by x)                                            as default_range,
+       sum(x) over (order by x rows between unbounded preceding and current row) as rows_frame
+from (values (1), (2), (2), (3)) as t(x);
+-- default_range: 1, 5, 5, 8   (both 2s see each other: ties are peers)
+-- rows_frame:    1, 3, 5, 8   (a true row-by-row running total)
+</script>
+<script type="text/x-sql" data-title="Moving average and the last_value fix">
+select order_id, ordered_at::date, total,
+       round(avg(total) over (order by ordered_at rows between 2 preceding and current row), 2) as moving_avg_3,
+       last_value(total) over (order by ordered_at)  as last_value_wrong,     -- = current row
+       last_value(total) over (order by ordered_at
+             rows between unbounded preceding and unbounded following) as last_value_right
+from order_summary
+order by ordered_at;
+</script>
+<div class="callout trap"><strong>Rules to remember</strong>
+<p>Running totals: write <code>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> explicitly when the order column can have ties.</p>
+<p><code>last_value</code> needs a frame that reaches the end of the partition.</p>
+<p>Window functions can't go in <code>WHERE</code>: filter in an outer query. Snowflake, BigQuery and DuckDB have <code>QUALIFY</code> for this; Postgres doesn't.</p></div>
+
+<h3>Share of total and comparisons to the group</h3>
+<script type="text/x-sql" data-title="Each product vs its category">
+select name, category, price,
+       round(100.0 * price / sum(price) over (partition by category), 1) as pct_of_category,
+       price - avg(price) over (partition by category)                   as diff_from_avg,
+       rank() over (partition by category order by price desc)           as rank_in_category
+from products
+order by category, rank_in_category;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="functions" data-title="Dates, strings, numbers, CASE">
+<h2>Dates, strings, numbers, CASE</h2>
+
+<h3>Date and time types</h3>
+<div class="table-wrap"><table>
+<tr><th>Type</th><th>Stores</th><th>Use for</th></tr>
+<tr><td><code>date</code></td><td>a calendar day</td><td>birthdays, report dates</td></tr>
+<tr><td><code>timestamp</code></td><td>date + time, no time zone</td><td>local wall-clock times only</td></tr>
+<tr><td><code>timestamptz</code></td><td>an absolute instant (stored in UTC, shown in the session time zone)</td><td class="yes">events — default choice</td></tr>
+<tr><td><code>interval</code></td><td>a duration</td><td><code>now() - interval '7 days'</code></td></tr>
+</table></div>
+<script type="text/x-sql" data-title="The date functions you use every day">
+select ordered_at,
+       date_trunc('month', ordered_at)::date        as month,       -- group by this
+       extract(year from ordered_at)                as year,
+       extract(isodow from ordered_at)              as iso_weekday, -- 1 = Monday
+       to_char(ordered_at, 'YYYY-MM')               as year_month,
+       ordered_at::date                             as day,
+       ordered_at + interval '3 days'               as ship_by,
+       age(date '2026-12-31', ordered_at::date)     as age,
+       date '2026-12-31' - ordered_at::date         as days_left    -- date - date = integer days
+from orders
+order by ordered_at;
+</script>
+<script type="text/x-sql" data-title="Time zones: the same instant, two calendars">
+select occurred_at,
+       occurred_at at time zone 'Europe/Paris'          as paris_wall_clock,
+       (occurred_at at time zone 'Europe/Paris')::date  as paris_day,
+       (occurred_at at time zone 'UTC')::date           as utc_day
+from events
+where event_id = 7;        -- 21:00 in Paris is 19:00 UTC: same day here, but not at 01:00
+</script>
+<div class="callout trap"><strong>Date traps</strong>
+<p><code>BETWEEN '2026-03-01' AND '2026-03-31'</code> on a timestamp stops at 31 March 00:00. Use a half-open range: <code>&gt;= '2026-03-01' AND &lt; '2026-04-01'</code>.</p>
+<p><code>timestamptz::date</code> depends on the session time zone. Convert explicitly with <code>AT TIME ZONE</code> before taking the day.</p></div>
+
+<h3>Strings</h3>
+<div class="table-wrap"><table>
+<tr><th>Need</th><th>Function</th><th>Example → result</th></tr>
+<tr><td>Concatenate</td><td><code>||</code>, <code>concat()</code>, <code>concat_ws()</code></td><td><code>concat_ws(' ', 'Amina', NULL, 'B')</code> → <code>Amina B</code> (skips NULLs; <code>||</code> returns NULL)</td></tr>
+<tr><td>Case</td><td><code>upper</code>, <code>lower</code>, <code>initcap</code></td><td><code>initcap('jean-luc')</code> → <code>Jean-Luc</code></td></tr>
+<tr><td>Trim / pad</td><td><code>trim</code>, <code>ltrim</code>, <code>lpad</code></td><td><code>lpad('7', 3, '0')</code> → <code>007</code></td></tr>
+<tr><td>Extract</td><td><code>left</code>, <code>right</code>, <code>substring</code>, <code>split_part</code></td><td><code>split_part('a@b.fr', '@', 2)</code> → <code>b.fr</code></td></tr>
+<tr><td>Find</td><td><code>position</code>, <code>strpos</code></td><td><code>strpos('hello', 'l')</code> → 3</td></tr>
+<tr><td>Replace</td><td><code>replace</code>, <code>regexp_replace</code>, <code>translate</code></td><td><code>translate('é è', 'éè', 'ee')</code> → <code>e e</code></td></tr>
+<tr><td>Split into rows</td><td><code>string_to_table</code>, <code>regexp_split_to_table</code></td><td><code>string_to_table('a,b', ',')</code> → 2 rows</td></tr>
+<tr><td>Length</td><td><code>length</code>, <code>octet_length</code></td><td><code>length('é')</code> = 1, <code>octet_length('é')</code> = 2</td></tr>
+</table></div>
+
+<h3>Numbers and casts</h3>
+<script type="text/x-sql" data-title="Integer division, rounding, safe division">
+select 7 / 2                       as int_division,     -- 3
+       7 / 2.0                     as numeric_division, -- 3.5000…
+       7 % 2                       as modulo,
+       round(2.345, 2)             as rounded,          -- 2.35
+       trunc(2.349, 2)             as truncated,        -- 2.34
+       ceil(2.1), floor(2.9),
+       100.0 * 3 / nullif(0, 0)    as safe_ratio,       -- NULL instead of "division by zero"
+       '42'::int + 1               as cast_shorthand,
+       cast('2026-04-01' as date)  as cast_standard;
+</script>
+<div class="table-wrap"><table>
+<tr><th>Type</th><th>Exact?</th><th>Use for</th></tr>
+<tr><td><code>int</code> / <code>bigint</code></td><td>exact</td><td>counts, ids (<code>bigint</code> for event tables)</td></tr>
+<tr><td><code>numeric(p, s)</code></td><td>exact</td><td class="yes">money, anything summed and compared</td></tr>
+<tr><td><code>real</code> / <code>double precision</code></td><td class="no">approximate (<code>0.1 + 0.2 ≠ 0.3</code>)</td><td>measurements, ML features</td></tr>
+</table></div>
+
+<h3>CASE, COALESCE, NULLIF, GREATEST</h3>
+<script type="text/x-sql" data-title="Conditional logic">
+select name, price,
+       case when price >= 500 then 'premium'
+            when price >= 30  then 'mid'
+            else 'budget' end                         as tier,          -- searched CASE
+       case category when 'bikes' then 'B' else 'A' end as code,        -- simple CASE
+       greatest(price - 20, 0)                        as after_coupon,
+       least(price, 100)                              as capped
+from products;
+
+select first_name,
+       coalesce(email, 'no-email@unknown')            as email,         -- first non-NULL
+       nullif(city, 'Paris')                          as not_paris      -- NULL when equal
+from customers;
+</script>
+<div class="callout tip"><strong>Pivot with FILTER</strong><p>Turning rows into columns is a <code>CASE</code>/<code>FILTER</code> per column:</p></div>
+<script type="text/x-sql" data-title="Pivot: revenue per month and category">
+select date_trunc('month', ordered_at)::date                 as month,
+       coalesce(sum(revenue) filter (where category = 'bikes'), 0)       as bikes,
+       coalesce(sum(revenue) filter (where category = 'accessories'), 0) as accessories,
+       coalesce(sum(revenue) filter (where category = 'parts'), 0)       as parts
+from order_lines
+where status <> 'cancelled'
+group by 1
+order by 1;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="ddl" data-title="Tables, keys and constraints">
+<h2>Tables, keys and constraints</h2>
+
+<h3>Constraints compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Constraint</th><th>Guarantees</th><th>NULL allowed</th><th>Per table</th><th>Creates an index</th></tr>
+<tr><td><code>PRIMARY KEY</code></td><td>unique row identity</td><td class="no">no</td><td>one</td><td class="yes">yes</td></tr>
+<tr><td><code>UNIQUE</code></td><td>no duplicate values</td><td class="yes">yes (several NULLs, unless <code>NULLS NOT DISTINCT</code>)</td><td>many</td><td class="yes">yes</td></tr>
+<tr><td><code>FOREIGN KEY</code></td><td>value exists in the parent table</td><td class="yes">yes</td><td>many</td><td class="no">no — index it yourself</td></tr>
+<tr><td><code>NOT NULL</code></td><td>a value is present</td><td>—</td><td>per column</td><td>no</td></tr>
+<tr><td><code>CHECK</code></td><td>a boolean rule holds</td><td>NULL passes the check</td><td>many</td><td>no</td></tr>
+<tr><td><code>DEFAULT</code></td><td>value when none given (not a constraint strictly)</td><td>—</td><td>per column</td><td>no</td></tr>
+<tr><td><code>EXCLUDE</code></td><td>no two rows "overlap" (e.g. bookings)</td><td>—</td><td>many</td><td>yes (GiST)</td></tr>
+</table></div>
+
+<h3>Foreign key actions</h3>
+<div class="table-wrap"><table>
+<tr><th><code>ON DELETE …</code></th><th>When the parent row is deleted</th><th>Example</th></tr>
+<tr><td><code>NO ACTION</code> / <code>RESTRICT</code> (default)</td><td>the delete fails</td><td>can't delete a customer who has orders</td></tr>
+<tr><td><code>CASCADE</code></td><td>children are deleted too</td><td>deleting an order deletes its items</td></tr>
+<tr><td><code>SET NULL</code></td><td>children keep living, key becomes NULL</td><td>employee leaves → tickets unassigned</td></tr>
+<tr><td><code>SET DEFAULT</code></td><td>key becomes its default</td><td>reassign to a placeholder</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Create, alter, comment">
+drop table if exists reviews;
+create table reviews (
+  review_id   bigint generated always as identity primary key,
+  product_id  int not null references products (product_id) on delete cascade,
+  customer_id int references customers (customer_id) on delete set null,
+  stars       smallint not null check (stars between 1 and 5),
+  body        text,
+  created_at  timestamptz not null default now(),
+  unique (product_id, customer_id)                 -- one review per customer per product
+);
+create index on reviews (customer_id);             -- foreign keys aren't indexed automatically
+
+comment on table reviews is 'Product reviews, one per customer and product';
+comment on column reviews.stars is '1 (bad) to 5 (great)';
+
+alter table reviews add constraint body_length check (length(body) <= 2000);
+alter table reviews drop constraint body_length;
+alter table reviews add column helpful_votes int not null default 0;
+alter table reviews rename column body to review_text;
+</script>
+<script type="text/x-sql" data-title="Adding a constraint to a big table without blocking it">
+alter table customers add constraint email_has_at check (email like '%@%') not valid;  -- new rows only, instant
+alter table customers validate constraint email_has_at;                                 -- checks old rows, light lock
+</script>
+
+<h3>Inspecting a database: information_schema and catalogs</h3>
+<script type="text/x-sql" data-title="Metadata queries">
+-- columns of a table
+select column_name, data_type, is_nullable, column_default
+from information_schema.columns
+where table_schema = 'public' and table_name = 'reviews'
+order by ordinal_position;
+
+-- every constraint in the schema
+select tc.table_name, tc.constraint_name, tc.constraint_type
+from information_schema.table_constraints tc
+where tc.table_schema = 'public'
+order by tc.table_name, tc.constraint_type;
+
+-- table comments and sizes (Postgres catalogs)
+select c.relname as table_name,
+       obj_description(c.oid)              as comment,
+       pg_size_pretty(pg_total_relation_size(c.oid)) as size
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relkind = 'r'
+order by pg_total_relation_size(c.oid) desc;
+</script>
+<div class="table-wrap"><table>
+<tr><th></th><th><code>information_schema</code></th><th><code>pg_catalog</code></th></tr>
+<tr><td>Standard</td><td class="yes">SQL standard: same queries on most databases</td><td class="no">Postgres only</td></tr>
+<tr><td>Coverage</td><td>tables, columns, constraints, views, privileges</td><td>everything (sizes, indexes, statistics, comments)</td></tr>
+<tr><td>Use in</td><td>portable data-quality and schema-drift checks</td><td>Postgres admin and tuning</td></tr>
+</table></div>
+
+<h3>Modelling: normalized vs star schema</h3>
+<div class="table-wrap"><table>
+<tr><th></th><th>Normalized (3NF) — OLTP</th><th>Star schema — OLAP / warehouse</th></tr>
+<tr><td>Goal</td><td>no duplicated data, safe writes</td><td>fast, simple analytical reads</td></tr>
+<tr><td>Shape</td><td>many small related tables</td><td>a central <b>fact</b> table (events, measures) + <b>dimension</b> tables (who, what, where, when)</td></tr>
+<tr><td>Joins per query</td><td>many</td><td>few (fact → dimensions)</td></tr>
+<tr><td>Example here</td><td><code>orders</code>, <code>order_items</code>, <code>products</code>, <code>customers</code></td><td><code>fact_sales</code> (one row per order line) + <code>dim_customer</code>, <code>dim_product</code>, <code>dim_date</code></td></tr>
+<tr><td>Typical engine</td><td>PostgreSQL, MySQL</td><td>Snowflake, BigQuery, Redshift, DuckDB</td></tr>
+</table></div>
+<div class="table-wrap"><table>
+<tr><th>Normal form</th><th>Rule (simplified)</th><th>Violation</th></tr>
+<tr><td>1NF</td><td>atomic values, no repeating groups</td><td>a <code>phones</code> column with "06…, 07…"</td></tr>
+<tr><td>2NF</td><td>non-key columns depend on the <em>whole</em> key</td><td><code>product_name</code> in <code>order_items</code> (depends on product_id only)</td></tr>
+<tr><td>3NF</td><td>non-key columns depend <em>only</em> on the key</td><td><code>city_population</code> in <code>customers</code> (depends on city)</td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="dml" data-title="Changing data: INSERT, UPDATE, DELETE, MERGE">
+<h2>Changing data: INSERT, UPDATE, DELETE, MERGE</h2>
+<script type="text/x-sql" data-title="INSERT … SELECT, RETURNING">
+insert into reviews (product_id, customer_id, stars, review_text)
+values (1, 1, 5, 'Perfect for commuting'),
+       (3, 2, 4, 'Light and comfortable')
+returning review_id, product_id, stars;
+
+-- insert from a query: everyone who bought a helmet gets a pending 5-star placeholder
+insert into reviews (product_id, customer_id, stars)
+select distinct product_id, customer_id, 5
+from order_lines
+where product = 'Helmet' and customer_id is not null
+on conflict (product_id, customer_id) do nothing;     -- skip those who already reviewed
+</script>
+<script type="text/x-sql" data-title="UPDATE … FROM and DELETE … USING">
+-- update from another table: 1 helpful vote per review written by a Paris customer
+update reviews r
+set helpful_votes = helpful_votes + 1
+from customers c
+where c.customer_id = r.customer_id and c.city = 'Paris'
+returning r.review_id, r.helpful_votes;
+
+-- delete with a join
+delete from reviews r
+using customers c
+where c.customer_id = r.customer_id and c.city = 'Marseille';
+</script>
+<div class="callout tip"><strong>Safe habit</strong><p>Write the <code>WHERE</code> as a <code>SELECT</code> first, check the rows, then change it to <code>UPDATE</code>/<code>DELETE</code> — inside <code>BEGIN; … ROLLBACK;</code> if in doubt.</p></div>
+
+<h3>Upsert: ON CONFLICT vs MERGE</h3>
+<script type="text/x-sql" data-title="Staging table + upsert, the idempotent load pattern">
+drop table if exists products_staging;
+create table products_staging (like products);
+insert into products_staging values
+  (3,   'Helmet',     'accessories', 44.90),   -- price change
+  (6,   'Repair kit', 'parts',       15.00),   -- unchanged
+  (100, 'Pump',       'parts',       19.90);   -- new
+
+-- ON CONFLICT: insert, or update the existing row
+insert into products (product_id, name, category, price)
+select product_id, name, category, price from products_staging
+on conflict (product_id) do update
+  set name = excluded.name, category = excluded.category, price = excluded.price
+  where products.price is distinct from excluded.price;     -- skip no-op updates
+</script>
+<script type="text/x-sql" data-title="MERGE (PostgreSQL 15+): one statement, several actions">
+merge into products t
+using products_staging s on t.product_id = s.product_id
+when matched and t.price <> s.price then
+  update set price = s.price
+when not matched then
+  insert (product_id, name, category, price) values (s.product_id, s.name, s.category, s.price);
+</script>
+<div class="table-wrap"><table>
+<tr><th></th><th><code>INSERT … ON CONFLICT</code></th><th><code>MERGE</code></th></tr>
+<tr><td>Needs a unique constraint</td><td class="yes">yes (the conflict target)</td><td class="no">no: any join condition</td></tr>
+<tr><td>Can delete</td><td class="no">no</td><td class="yes"><code>WHEN MATCHED … THEN DELETE</code></td></tr>
+<tr><td>Concurrency</td><td class="yes">atomic, safe under concurrent inserts</td><td class="part">can fail on a race; retry</td></tr>
+<tr><td>Portability</td><td>Postgres, SQLite, DuckDB</td><td>SQL standard: Postgres 15+, Snowflake, BigQuery, SQL Server, DuckDB 1.4+</td></tr>
+<tr><td>Use for</td><td>row-at-a-time or batch upserts in Postgres</td><td>warehouse loads with insert/update/delete rules</td></tr>
+</table></div>
+
+<h3>DELETE vs TRUNCATE vs DROP</h3>
+<div class="table-wrap"><table>
+<tr><th></th><th><code>DELETE</code></th><th><code>TRUNCATE</code></th><th><code>DROP TABLE</code></th></tr>
+<tr><td>Removes</td><td>chosen rows (<code>WHERE</code>)</td><td>all rows</td><td>the table itself</td></tr>
+<tr><td>Speed on big tables</td><td>slow (row by row, leaves dead rows to vacuum)</td><td class="yes">instant</td><td class="yes">instant</td></tr>
+<tr><td>Fires row triggers</td><td class="yes">yes</td><td class="no">no</td><td class="no">no</td></tr>
+<tr><td>Resets identity</td><td>no</td><td>with <code>RESTART IDENTITY</code></td><td>—</td></tr>
+<tr><td>Rollback in Postgres</td><td class="yes">yes</td><td class="yes">yes (inside a transaction)</td><td class="yes">yes</td></tr>
+<tr><td>Blocked by foreign keys</td><td>per row</td><td>unless <code>CASCADE</code></td><td>unless <code>CASCADE</code></td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="transactions" data-title="Transactions and locks">
+<h2>Transactions and locks</h2>
+
+<h3>ACID</h3>
+<div class="table-wrap"><table>
+<tr><th>Letter</th><th>Promise</th><th>Example</th></tr>
+<tr><td><b>A</b>tomicity</td><td>all statements succeed or none do</td><td>the order and its items are saved together</td></tr>
+<tr><td><b>C</b>onsistency</td><td>constraints hold after every transaction</td><td>no item points to a missing order</td></tr>
+<tr><td><b>I</b>solation</td><td>concurrent transactions don't see each other's half-done work</td><td>a report doesn't see an order without its items</td></tr>
+<tr><td><b>D</b>urability</td><td>committed data survives a crash</td><td>written to the WAL before <code>COMMIT</code> returns</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="BEGIN, SAVEPOINT, ROLLBACK TO, COMMIT">
+begin;
+  insert into orders (customer_id, ordered_at, status) values (6, now(), 'paid');
+  insert into order_items values (currval('orders_order_id_seq'), 3, 1);
+  savepoint before_discount;
+  update products set price = 0.01 where product_id = 3;       -- oops
+  rollback to savepoint before_discount;                        -- undo only the update
+  select order_id, status from orders where customer_id = 6;    -- Karim's order is there
+rollback;                                                        -- practice: undo everything (use COMMIT for real)
+</script>
+<div class="callout"><strong>Autocommit</strong><p>Outside <code>BEGIN</code>, each statement is its own transaction. In psql, <code>\set ON_ERROR_ROLLBACK on</code> makes a failed statement inside a transaction not abort the whole transaction. In Python (psycopg), a connection opens a transaction automatically: call <code>commit()</code> or use <code>with conn:</code>.</p></div>
+
+<h3>Isolation levels compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Level</th><th>Dirty read</th><th>Non-repeatable read</th><th>Phantom read</th><th>Serialization anomaly</th><th>Postgres note</th></tr>
+<tr><td>Read uncommitted</td><td>allowed by standard</td><td>possible</td><td>possible</td><td>possible</td><td>behaves as Read committed</td></tr>
+<tr><td><b>Read committed</b></td><td class="yes">prevented</td><td>possible</td><td>possible</td><td>possible</td><td><b>default</b>: each statement sees data committed before it started</td></tr>
+<tr><td>Repeatable read</td><td class="yes">prevented</td><td class="yes">prevented</td><td class="yes">prevented in Postgres</td><td>possible</td><td>one snapshot for the whole transaction; may fail with a serialization error</td></tr>
+<tr><td>Serializable</td><td class="yes">prevented</td><td class="yes">prevented</td><td class="yes">prevented</td><td class="yes">prevented</td><td>as if transactions ran one by one; retry on error 40001</td></tr>
+</table></div>
+<div class="table-wrap"><table>
+<tr><th>Anomaly</th><th>What happens</th></tr>
+<tr><td>Dirty read</td><td>you read another transaction's uncommitted change, which is then rolled back</td></tr>
+<tr><td>Non-repeatable read</td><td>you read a row twice and get different values because someone committed in between</td></tr>
+<tr><td>Phantom read</td><td>you run the same <code>WHERE</code> twice and new rows appear</td></tr>
+<tr><td>Lost update</td><td>two sessions read stock = 5, both write 4: one sale disappears (fix: <code>UPDATE … SET stock = stock - 1</code> or <code>SELECT … FOR UPDATE</code>)</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Choosing a level for one transaction">
+begin isolation level repeatable read;
+  select count(*) from orders;   -- the same snapshot for every query until COMMIT
+  select sum(total) from order_summary;
+commit;
+</script>
+
+<h3>Locks</h3>
+<div class="table-wrap"><table>
+<tr><th>Statement</th><th>Locks</th><th>Blocks</th></tr>
+<tr><td><code>SELECT</code></td><td>nothing on rows (MVCC: readers never block writers)</td><td>only <code>DROP</code>/<code>ALTER</code> of the table</td></tr>
+<tr><td><code>UPDATE</code> / <code>DELETE</code></td><td>the changed rows</td><td>other writers of the same rows, until commit</td></tr>
+<tr><td><code>SELECT … FOR UPDATE</code></td><td>the selected rows</td><td>other <code>FOR UPDATE</code> and writers on those rows</td></tr>
+<tr><td><code>… FOR UPDATE SKIP LOCKED</code></td><td>rows not already locked</td><td>nothing: skips busy rows (job queues)</td></tr>
+<tr><td><code>ALTER TABLE</code> (most forms)</td><td>the whole table, exclusively</td><td>everything, including reads</td></tr>
+<tr><td><code>CREATE INDEX</code></td><td>blocks writes</td><td>use <code>CREATE INDEX CONCURRENTLY</code> in production</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="A worker queue: claim the next paid order to ship">
+begin;
+  select order_id from orders
+  where status = 'paid'
+  order by ordered_at
+  limit 1
+  for update skip locked;          -- two workers never grab the same order
+  -- … process it, then: update orders set status = 'shipped' where order_id = …;
+commit;
+
+-- who is waiting on whom right now
+select pid, state, wait_event_type, left(query, 60) as query
+from pg_stat_activity
+where datname = current_database();
+</script>
+<div class="callout trap"><strong>Deadlocks</strong><p>Session A locks row 1 then wants row 2; session B locks row 2 then wants row 1. Postgres detects it and kills one transaction. Prevention: always lock rows in the same order (e.g. <code>ORDER BY id … FOR UPDATE</code>) and keep transactions short.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="views" data-title="Views and materialized views">
+<h2>Views and materialized views</h2>
+<div class="table-wrap"><table>
+<tr><th></th><th>View</th><th>Materialized view</th><th>Table (built by a pipeline)</th></tr>
+<tr><td>Stores</td><td>the query only</td><td>the query's result</td><td>data</td></tr>
+<tr><td>Freshness</td><td class="yes">always current</td><td class="part">as of the last <code>REFRESH</code></td><td>as of the last load</td></tr>
+<tr><td>Read speed</td><td>same as running the query</td><td class="yes">fast, can be indexed</td><td class="yes">fast, can be indexed</td></tr>
+<tr><td>Writable</td><td>simple views: yes</td><td class="no">no</td><td class="yes">yes</td></tr>
+<tr><td>Use for</td><td>hiding complexity, security, stable interfaces</td><td>expensive dashboards refreshed hourly/daily</td><td>incremental loads, history</td></tr>
+<tr><td>dbt equivalent</td><td><code>materialized='view'</code></td><td>—</td><td><code>table</code> / <code>incremental</code></td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Create, replace, rename, drop">
+create or replace view customer_revenue as
+select c.customer_id, c.first_name, c.city, coalesce(sum(s.total), 0) as revenue
+from customers c
+left join order_summary s on s.customer_id = c.customer_id and s.status <> 'cancelled'
+group by c.customer_id, c.first_name, c.city;
+
+select * from customer_revenue order by revenue desc;
+
+alter view customer_revenue rename to customer_value;
+drop view customer_value;
+</script>
+<div class="callout"><strong><code>CREATE OR REPLACE VIEW</code> limits</strong><p>It can add columns at the end but can't remove, rename or retype existing ones: drop and recreate instead (<code>DROP VIEW … CASCADE</code> also drops views built on it).</p></div>
+
+<h3>Updatable views and WITH CHECK OPTION</h3>
+<p>A view on one table, without aggregates, <code>DISTINCT</code>, <code>GROUP BY</code> or set operations, accepts <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>, which go to the base table.</p>
+<script type="text/x-sql" data-title="A writable view that refuses rows outside its filter">
+create or replace view paris_customers as
+select customer_id, first_name, last_name, email, city
+from customers
+where city = 'Paris'
+with check option;
+
+insert into paris_customers (first_name, last_name, city) values ('Léa', 'Petit', 'Paris');   -- OK
+update paris_customers set email = 'lea@mail.fr' where first_name = 'Léa';
+-- insert … values ('Tom', 'Roux', 'Lyon') would fail: the row would be invisible through the view
+delete from paris_customers where first_name = 'Léa';
+</script>
+
+<h3>Materialized views</h3>
+<script type="text/x-sql" data-title="Refresh, and refresh without blocking readers">
+drop materialized view if exists monthly_revenue;
+create materialized view monthly_revenue as
+select date_trunc('month', ordered_at)::date as month, sum(total) as revenue, count(*) as orders
+from order_summary
+where status <> 'cancelled'
+group by 1;
+
+create unique index on monthly_revenue (month);        -- required for CONCURRENTLY
+refresh materialized view concurrently monthly_revenue; -- readers keep the old version meanwhile
+select * from monthly_revenue order by month;
+</script>
+
+<h3>Recursive views</h3>
+<script type="text/x-sql" data-title="The org chart as a reusable view">
+create or replace recursive view org_chart (employee_id, name, depth) as
+  select employee_id, name, 0 from employees where manager_id is null
+  union all
+  select e.employee_id, e.name, o.depth + 1
+  from employees e join org_chart o on e.manager_id = o.employee_id;
+
+select * from org_chart order by depth, name;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="partitioning" data-title="Partitioning and inheritance">
+<h2>Partitioning and inheritance</h2>
+<p>A partitioned table is one logical table stored as several physical tables. Queries that filter on the partition key read only the matching partitions (<b>partition pruning</b>), and dropping old data is a cheap <code>DROP</code> of a partition instead of a huge <code>DELETE</code>.</p>
+<div class="table-wrap"><table>
+<tr><th>Strategy</th><th>Rows go by</th><th>Good for</th><th>Example</th></tr>
+<tr><td><code>RANGE</code></td><td>value intervals</td><td class="yes">time series (the most common)</td><td>one partition per month of <code>sold_at</code></td></tr>
+<tr><td><code>LIST</code></td><td>explicit values</td><td>a few known categories</td><td>one partition per country</td></tr>
+<tr><td><code>HASH</code></td><td>hash of the key, modulo n</td><td>spreading evenly when there's no natural range</td><td>4 partitions by <code>customer_id</code></td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Range partitioning by quarter">
+drop table if exists sales cascade;
+create table sales (
+  sale_id  bigserial,
+  sold_at  date not null,
+  store    text not null,
+  amount   numeric(10,2) not null,
+  primary key (sale_id, sold_at)            -- the partition key must be part of the primary key
+) partition by range (sold_at);
+
+create table sales_2026_q1 partition of sales for values from ('2026-01-01') to ('2026-04-01');
+create table sales_2026_q2 partition of sales for values from ('2026-04-01') to ('2026-07-01');
+create table sales_default partition of sales default;   -- catches anything else
+
+insert into sales (sold_at, store, amount) values
+  ('2026-02-14', 'Bastille', 120.00), ('2026-05-02', 'Bastille', 80.00),
+  ('2026-05-20', 'Montmartre', 45.50), ('2027-01-05', 'Montmartre', 99.00);
+
+select tableoid::regclass as partition, * from sales order by sold_at;
+
+-- pruning: the plan only scans sales_2026_q2
+explain select sum(amount) from sales where sold_at >= '2026-04-01' and sold_at < '2026-07-01';
+</script>
+<script type="text/x-sql" data-title="List and hash partitioning">
+drop table if exists deliveries cascade;
+create table deliveries (delivery_id int, city text not null, shipped_on date) partition by list (city);
+create table deliveries_paris  partition of deliveries for values in ('Paris');
+create table deliveries_south  partition of deliveries for values in ('Lyon', 'Marseille');
+create table deliveries_other  partition of deliveries default;
+
+drop table if exists page_hits cascade;
+create table page_hits (customer_id int not null, hit_at timestamptz) partition by hash (customer_id);
+create table page_hits_0 partition of page_hits for values with (modulus 4, remainder 0);
+create table page_hits_1 partition of page_hits for values with (modulus 4, remainder 1);
+create table page_hits_2 partition of page_hits for values with (modulus 4, remainder 2);
+create table page_hits_3 partition of page_hits for values with (modulus 4, remainder 3);
+</script>
+<script type="text/x-sql" data-title="Retention: detach or drop a whole partition">
+alter table sales detach partition sales_2026_q1;   -- keep it as a normal table (archive)
+drop table sales_2026_q1;                           -- or delete a quarter instantly
+</script>
+
+<h3>Table inheritance</h3>
+<script type="text/x-sql" data-title="Children inherit the parent's columns">
+drop table if exists vehicles cascade;
+create table vehicles (vehicle_id int, name text);
+create table ebikes (battery_wh int) inherits (vehicles);
+insert into vehicles values (1, 'City bike');
+insert into ebikes values (2, 'Electric bike', 500);
+
+select * from vehicles;        -- both rows (parent + children)
+select * from only vehicles;   -- the parent's own row only
+</script>
+<div class="table-wrap"><table>
+<tr><th></th><th>Declarative partitioning</th><th>Inheritance</th><th>Index</th></tr>
+<tr><td>Solves</td><td>huge tables, retention, pruning</td><td>"is-a" hierarchies with extra columns</td><td>finding few rows fast</td></tr>
+<tr><td>Children can add columns</td><td class="no">no</td><td class="yes">yes</td><td>—</td></tr>
+<tr><td>Rows routed automatically</td><td class="yes">yes</td><td class="no">no (insert into the child)</td><td>—</td></tr>
+<tr><td>Unique constraints across children</td><td>only if they include the partition key</td><td class="no">no</td><td>—</td></tr>
+<tr><td>Today</td><td class="yes">use this</td><td>legacy; rarely needed</td><td>use with either</td></tr>
+</table></div>
+<div class="callout de"><strong>In warehouses</strong><p>BigQuery partitions by date column and clusters by up to 4 columns; Snowflake partitions automatically into micro-partitions and lets you add a clustering key. The idea is the same: filter on the partition column so the engine skips data, and you pay for less scanning.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="routines" data-title="Functions, procedures, triggers">
+<h2>Functions, procedures, triggers</h2>
+<div class="table-wrap"><table>
+<tr><th></th><th>Function</th><th>Procedure</th><th>Trigger</th></tr>
+<tr><td>Called with</td><td><code>SELECT f(…)</code>, inside any query</td><td><code>CALL p(…)</code></td><td>automatically, on <code>INSERT/UPDATE/DELETE/TRUNCATE</code></td></tr>
+<tr><td>Returns</td><td>a value, a row or a table</td><td>nothing (or <code>INOUT</code> params)</td><td>the (modified) row, or NULL to skip it</td></tr>
+<tr><td>Can <code>COMMIT</code> inside</td><td class="no">no</td><td class="yes">yes (when not called inside a transaction block)</td><td class="no">no</td></tr>
+<tr><td>Languages</td><td><code>sql</code>, <code>plpgsql</code>, Python (<code>plpython3u</code>)…</td><td>same</td><td>a function <code>RETURNS trigger</code></td></tr>
+<tr><td>Use for</td><td>reusable calculations, table-valued helpers</td><td>multi-step maintenance jobs</td><td>audit logs, <code>updated_at</code>, enforcing complex rules</td></tr>
+</table></div>
+
+<h3>Functions</h3>
+<script type="text/x-sql" data-title="A scalar SQL function and a table function">
+create or replace function order_total(p_order_id int)
+returns numeric
+language sql stable                    -- stable: same result within a query, reads the database
+as $$
+  select coalesce(sum(oi.quantity * p.price), 0)
+  from order_items oi join products p using (product_id)
+  where oi.order_id = p_order_id
+$$;
+
+select order_id, order_total(order_id) from orders order by order_id;
+
+create or replace function customer_orders(p_customer_id int)
+returns table (order_id int, ordered_at timestamp, total numeric)
+language sql stable
+as $$
+  select order_id, ordered_at, total from order_summary where customer_id = p_customer_id
+$$;
+
+select * from customer_orders(1);
+</script>
+<script type="text/x-sql" data-title="PL/pgSQL: variables, IF, RAISE">
+create or replace function loyalty_tier(p_customer_id int)
+returns text
+language plpgsql stable
+as $$
+declare
+  spent numeric;
+begin
+  select coalesce(sum(total), 0) into spent
+  from order_summary
+  where customer_id = p_customer_id and status <> 'cancelled';
+
+  if spent >= 1500 then return 'gold';
+  elsif spent >= 300 then return 'silver';
+  else return 'bronze';
+  end if;
+end;
+$$;
+
+select first_name, loyalty_tier(customer_id) from customers;
+</script>
+<div class="table-wrap"><table>
+<tr><th>Volatility</th><th>Promise</th><th>Example</th></tr>
+<tr><td><code>IMMUTABLE</code></td><td>same inputs → same output, forever; no table reads</td><td>tax calculation; allowed in index expressions</td></tr>
+<tr><td><code>STABLE</code></td><td>same output within one statement; may read tables</td><td><code>order_total</code>, <code>now()</code></td></tr>
+<tr><td><code>VOLATILE</code> (default)</td><td>may change anything, re-run per row</td><td><code>random()</code>, functions that write</td></tr>
+</table></div>
+
+<h3>Procedures</h3>
+<script type="text/x-sql" data-title="A maintenance procedure">
+drop table if exists orders_archive;
+create table orders_archive (like orders);
+
+create or replace procedure archive_cancelled_orders()
+language plpgsql
+as $$
+begin
+  insert into orders_archive select * from orders where status = 'cancelled';
+  delete from orders where status = 'cancelled';
+  raise notice 'archived % orders', (select count(*) from orders_archive);
+end;
+$$;
+
+begin;
+  call archive_cancelled_orders();
+  select count(*) as still_cancelled from orders where status = 'cancelled';   -- 0
+rollback;   -- practice: keep the data as it was
+</script>
+
+<h3>Triggers</h3>
+<script type="text/x-sql" data-title="Audit every price change">
+drop table if exists price_audit;
+create table price_audit (
+  product_id int, old_price numeric, new_price numeric,
+  changed_by text default current_user, changed_at timestamptz default now()
+);
+
+create or replace function log_price_change()
+returns trigger
+language plpgsql
+as $$
+begin
+  insert into price_audit (product_id, old_price, new_price)
+  values (old.product_id, old.price, new.price);
+  return new;
+end;
+$$;
+
+create or replace trigger trg_price_audit
+after update of price on products
+for each row
+when (old.price is distinct from new.price)     -- only real changes
+execute function log_price_change();
+
+update products set price = price + 1 where product_id = 5;
+select * from price_audit;
+
+alter table products disable trigger trg_price_audit;   -- e.g. during a bulk reload
+alter table products enable trigger trg_price_audit;
+</script>
+<script type="text/x-sql" data-title="BEFORE trigger: maintain updated_at">
+alter table customers add column if not exists updated_at timestamptz;
+
+create or replace function touch_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at := now();     -- BEFORE triggers can change the row being written
+  return new;
+end;
+$$;
+
+create or replace trigger trg_customers_touch
+before update on customers
+for each row execute function touch_updated_at();
+
+update customers set city = 'Paris' where first_name = 'Karim';
+select first_name, city, updated_at from customers where first_name = 'Karim';
+
+drop trigger trg_customers_touch on customers;
+</script>
+<div class="table-wrap"><table>
+<tr><th>Choice</th><th>Options</th><th>Rule of thumb</th></tr>
+<tr><td>Timing</td><td><code>BEFORE</code> / <code>AFTER</code> / <code>INSTEAD OF</code> (views)</td><td>BEFORE to modify or reject the row, AFTER to react (audit, notify)</td></tr>
+<tr><td>Level</td><td><code>FOR EACH ROW</code> / <code>FOR EACH STATEMENT</code></td><td>statement-level for one action per bulk operation</td></tr>
+<tr><td>Return value</td><td><code>NEW</code>, <code>OLD</code>, <code>NULL</code></td><td>NULL in a BEFORE row trigger silently skips the row</td></tr>
+</table></div>
+<div class="callout trap"><strong>Use triggers sparingly</strong><p>They're invisible from the application, slow bulk loads, and make behaviour hard to debug. In data pipelines, prefer explicit steps (dbt models, Airflow tasks). Snowflake and BigQuery don't have triggers at all: Snowflake uses streams + tasks instead.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="performance" data-title="Performance: EXPLAIN and indexes">
+<h2>Performance: EXPLAIN and indexes</h2>
+<script type="text/x-sql" data-title="EXPLAIN vs EXPLAIN ANALYZE">
+explain                          -- the plan and estimated costs, without running
+select * from orders where customer_id = 2;
+
+explain (analyze, buffers)       -- RUNS the query: real times and row counts
+select c.city, sum(s.total)
+from order_summary s join customers c using (customer_id)
+group by c.city;
+</script>
+<div class="callout trap"><strong><code>EXPLAIN ANALYZE</code> executes the statement</strong><p>On an <code>UPDATE</code> or <code>DELETE</code>, wrap it: <code>BEGIN; EXPLAIN ANALYZE DELETE …; ROLLBACK;</code></p></div>
+
+<h3>Reading a plan</h3>
+<div class="table-wrap"><table>
+<tr><th>Node</th><th>Means</th><th>Good when</th></tr>
+<tr><td><code>Seq Scan</code></td><td>reads the whole table</td><td>small tables, or most rows are needed</td></tr>
+<tr><td><code>Index Scan</code></td><td>walks an index, fetches each row</td><td>few rows match</td></tr>
+<tr><td><code>Index Only Scan</code></td><td>answers from the index alone</td><td>all needed columns are in the index</td></tr>
+<tr><td><code>Bitmap Heap Scan</code></td><td>collects matches from an index, then reads pages in order</td><td>a medium number of rows; combining indexes</td></tr>
+<tr><td><code>Nested Loop</code></td><td>for each outer row, look up inner rows</td><td>small outer side + index on the inner key</td></tr>
+<tr><td><code>Hash Join</code></td><td>builds a hash table of one side</td><td>large unsorted inputs, equality joins</td></tr>
+<tr><td><code>Merge Join</code></td><td>walks two sorted inputs together</td><td>both sides already sorted/indexed</td></tr>
+</table></div>
+<p>What to look at: <b>estimated vs actual rows</b> (a big gap means stale statistics: run <code>ANALYZE table</code>), the slowest node, <code>Rows Removed by Filter</code> (reading a lot to keep a little suggests an index), and sorts that spill to disk.</p>
+
+<h3>Index types compared</h3>
+<div class="table-wrap"><table>
+<tr><th>Type</th><th>Supports</th><th>Use for</th></tr>
+<tr><td><b>B-tree</b> (default)</td><td><code>= &lt; &gt; BETWEEN</code>, <code>ORDER BY</code>, <code>LIKE 'abc%'</code></td><td>almost everything: ids, dates, foreign keys</td></tr>
+<tr><td>Hash</td><td><code>=</code> only</td><td>rarely better than B-tree</td></tr>
+<tr><td><b>GIN</b></td><td>"contains": <code>@&gt;</code>, <code>?</code>, full-text, arrays, trigrams</td><td><code>jsonb</code> columns, tags arrays, text search</td></tr>
+<tr><td>GiST</td><td>overlaps, nearest neighbour</td><td>geometry (PostGIS), ranges, exclusion constraints</td></tr>
+<tr><td><b>BRIN</b></td><td>ranges of physically ordered data</td><td>huge append-only event tables ordered by time: tiny index</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Composite, partial, expression and covering indexes">
+create index if not exists orders_customer_date_idx on orders (customer_id, ordered_at);  -- composite
+create index if not exists orders_paid_idx on orders (ordered_at) where status = 'paid';   -- partial: small
+create index if not exists customers_email_lower_idx on customers (lower(email));          -- expression
+create index if not exists orders_cover_idx on orders (customer_id) include (status);      -- covering
+create index if not exists events_payload_idx on events using gin (payload);               -- jsonb
+analyze orders;
+</script>
+<div class="table-wrap"><table>
+<tr><th>The index is not used because…</th><th>Example</th><th>Fix</th></tr>
+<tr><td>a function wraps the column</td><td><code>where lower(email) = …</code> with an index on <code>email</code></td><td>expression index on <code>lower(email)</code></td></tr>
+<tr><td>the leading column of a composite index is missing</td><td>index <code>(customer_id, ordered_at)</code>, filter on <code>ordered_at</code> only</td><td>put the most-filtered column first, or another index</td></tr>
+<tr><td>arithmetic on the column</td><td><code>where ordered_at + interval '1 day' &gt; now()</code></td><td>move it to the other side: <code>ordered_at &gt; now() - interval '1 day'</code></td></tr>
+<tr><td>a leading wildcard</td><td><code>like '%bike'</code></td><td>trigram GIN index (<code>pg_trgm</code>)</td></tr>
+<tr><td>a type mismatch</td><td>text column compared to a number</td><td>compare with the same type</td></tr>
+<tr><td>most rows match</td><td><code>where status &lt;&gt; 'cancelled'</code></td><td>nothing: a seq scan is faster here</td></tr>
+<tr><td>the table is tiny</td><td>our practice tables</td><td>nothing: correct choice</td></tr>
+</table></div>
+<div class="callout"><strong>Indexes aren't free</strong><p>Each index slows down every insert/update and takes disk space. Index foreign keys and the columns you filter or join on; drop indexes that <code>pg_stat_user_indexes</code> shows are never used.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="json" data-title="Arrays and JSON">
+<h2>Arrays and JSON</h2>
+
+<h3>Arrays</h3>
+<script type="text/x-sql" data-title="Build, unpack, search arrays">
+-- build: one array per customer
+select customer_id, array_agg(order_id order by ordered_at) as orders
+from orders where customer_id is not null group by customer_id;
+
+-- store tags and search them
+alter table products add column if not exists tags text[] default '{}';
+update products set tags = array['commute', 'city'] where name = 'City bike';
+update products set tags = array['commute', 'electric'] where name = 'Electric bike';
+update products set tags = array['safety'] where name in ('Helmet', 'Front light', 'U-lock');
+
+select name, tags,
+       tags[1]                 as first_tag,         -- arrays start at 1
+       cardinality(tags)       as n_tags,
+       'commute' = any (tags)  as is_commute
+from products;
+
+select name from products where tags @> array['commute'];      -- contains
+select name from products where tags && array['safety', 'x'];   -- overlaps
+
+-- unpack: one row per tag
+select name, unnest(tags) as tag from products;
+</script>
+
+<h3>JSON: json vs jsonb</h3>
+<div class="table-wrap"><table>
+<tr><th></th><th><code>json</code></th><th><code>jsonb</code></th></tr>
+<tr><td>Stored as</td><td>the exact text</td><td>a parsed binary form</td></tr>
+<tr><td>Keeps key order, duplicates, whitespace</td><td class="yes">yes</td><td class="no">no (last duplicate wins)</td></tr>
+<tr><td>Insert speed</td><td>faster</td><td>slightly slower (parsing)</td></tr>
+<tr><td>Query speed</td><td>reparsed every time</td><td class="yes">fast</td></tr>
+<tr><td>Indexable (GIN), <code>@&gt;</code> containment</td><td class="no">no</td><td class="yes">yes</td></tr>
+<tr><td>Verdict</td><td>only to keep the raw text exactly</td><td class="yes">default choice</td></tr>
+</table></div>
+<div class="table-wrap"><table>
+<tr><th>Operator / function</th><th>Returns</th><th>Example</th></tr>
+<tr><td><code>-&gt;</code></td><td>jsonb</td><td><code>payload -&gt; 'filters'</code></td></tr>
+<tr><td><code>-&gt;&gt;</code></td><td>text</td><td><code>payload -&gt;&gt; 'type'</code></td></tr>
+<tr><td><code>#&gt;&gt; '{a,b}'</code></td><td>text at a path</td><td><code>payload #&gt;&gt; '{filters,0}'</code></td></tr>
+<tr><td><code>@&gt;</code></td><td>boolean: contains</td><td><code>payload @&gt; '{"device":"mobile"}'</code></td></tr>
+<tr><td><code>?</code></td><td>boolean: key exists</td><td><code>payload ? 'amount'</code></td></tr>
+<tr><td><code>jsonb_array_elements(_text)</code></td><td>one row per element</td><td>explode a list</td></tr>
+<tr><td><code>jsonb_build_object</code>, <code>jsonb_agg</code></td><td>build JSON from rows</td><td>API responses, exports</td></tr>
+<tr><td><code>jsonb_set</code>, <code>||</code>, <code>-</code></td><td>modified jsonb</td><td>update / merge / remove keys</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Flatten raw JSON events into columns (the ELT step)">
+select event_id, customer_id,
+       payload ->> 'type'                 as event_type,
+       payload ->> 'page'                 as page,
+       payload ->> 'device'               as device,
+       (payload ->> 'product_id')::int    as product_id,
+       (payload ->> 'amount')::numeric    as amount
+from events
+order by occurred_at;
+</script>
+<script type="text/x-sql" data-title="Search, explode, build, modify">
+-- events on mobile (uses the GIN index on big tables)
+select count(*) from events where payload @> '{"device": "mobile"}';
+
+-- explode an array inside JSON
+select e.event_id, f.filter
+from events e
+cross join lateral jsonb_array_elements_text(e.payload -> 'filters') as f(filter);
+
+-- build nested JSON: each customer with their orders
+select jsonb_build_object(
+         'customer', c.first_name,
+         'orders', coalesce(jsonb_agg(jsonb_build_object('id', s.order_id, 'total', s.total)
+                                      order by s.order_id) filter (where s.order_id is not null), '[]')
+       ) as doc
+from customers c
+left join order_summary s on s.customer_id = c.customer_id
+group by c.customer_id, c.first_name;
+
+-- modify
+select payload || '{"campaign": "spring"}'          as added,
+       payload - 'device'                           as removed,
+       jsonb_set(payload, '{device}', '"tablet"')   as replaced
+from events where event_id = 1;
+</script>
+<div class="callout de"><strong>Data engineering use</strong><p>Land API responses as raw <code>jsonb</code> first (keeps everything, never breaks on a new field), then flatten into typed columns in a staging model. That's the ELT pattern you'll use with dbt.</p></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="tools" data-title="COPY, extensions and tools">
+<h2>COPY, extensions and tools</h2>
+<h3>Loading and exporting</h3>
+<div class="table-wrap"><table>
+<tr><th>Method</th><th>File location</th><th>Speed</th><th>Use for</th></tr>
+<tr><td><code>COPY … FROM 'file'</code></td><td>on the database <b>server</b></td><td class="yes">fastest</td><td>server-side jobs (needs file access privileges)</td></tr>
+<tr><td><code>\copy … from 'file'</code> (psql)</td><td>on <b>your machine</b></td><td class="yes">fast (streams COPY)</td><td>loading local CSVs</td></tr>
+<tr><td>Python <code>cursor.copy()</code></td><td>in memory / any file</td><td class="yes">fast</td><td>pipelines</td></tr>
+<tr><td>Multi-row <code>INSERT</code></td><td>—</td><td>medium</td><td>small batches</td></tr>
+<tr><td>Row-by-row <code>INSERT</code></td><td>—</td><td class="no">slow</td><td>avoid for bulk loads</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Export a query, load into staging" data-norun="psql meta-commands">
+\copy (select * from order_summary) to 'order_summary.csv' with (format csv, header)
+
+create table order_summary_raw as select * from order_summary with no data;   -- same columns, empty
+\copy order_summary_raw from 'order_summary.csv' with (format csv, header, null '')
+</script>
+
+<h3>Extensions worth knowing</h3>
+<div class="table-wrap"><table>
+<tr><th>Extension</th><th>Adds</th></tr>
+<tr><td><code>pg_stat_statements</code></td><td>which queries take the most total time (first stop for tuning)</td></tr>
+<tr><td><code>pg_trgm</code></td><td>fuzzy matching (<code>similarity()</code>) and fast <code>LIKE '%x%'</code></td></tr>
+<tr><td><code>pgcrypto</code></td><td>hashing and encryption functions</td></tr>
+<tr><td><code>postgis</code></td><td>geography types and spatial queries</td></tr>
+<tr><td><code>postgres_fdw</code></td><td>query another Postgres database as if local</td></tr>
+<tr><td><code>pgvector</code></td><td>vector columns and similarity search (AI embeddings)</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="Install and use an extension">
+create extension if not exists pg_trgm;
+select name, round(similarity(name, 'helmit')::numeric, 2) as score
+from products
+order by score desc
+limit 3;
+
+select extname, extversion from pg_extension;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="patterns" data-title="Data engineering patterns">
+<h2>Data engineering patterns</h2>
+<p>The queries that come up again and again in pipelines and interviews.</p>
+
+<h3>1. Deduplicate: keep the latest row per key</h3>
+<script type="text/x-sql" data-title="row_number() dedup">
+with ranked as (
+  select *, row_number() over (partition by customer_id order by occurred_at desc, event_id desc) as rn
+  from events
+)
+select customer_id, occurred_at, payload ->> 'type' as last_event
+from ranked
+where rn = 1;
+</script>
+<script type="text/x-sql" data-title="Delete duplicates in place, keep the smallest id">
+drop table if exists signup_raw;
+create table signup_raw (id serial, email text);
+insert into signup_raw (email) values ('a@x.fr'), ('b@x.fr'), ('a@x.fr'), ('a@x.fr');
+
+delete from signup_raw t
+using signup_raw d
+where t.email = d.email and t.id > d.id;
+
+select * from signup_raw;      -- ids 1 and 2
+</script>
+
+<h3>2. Top N per group</h3>
+<script type="text/x-sql" data-title="Best-selling product per category">
+select category, product, revenue
+from (
+  select category, product, sum(revenue) as revenue,
+         rank() over (partition by category order by sum(revenue) desc) as rnk   -- window over an aggregate
+  from order_lines
+  where status <> 'cancelled'
+  group by category, product
+) t
+where rnk = 1;
+</script>
+
+<h3>3. Period over period</h3>
+<script type="text/x-sql" data-title="Month-over-month growth with a date spine">
+with months as (
+  select generate_series('2026-01-01'::date, '2026-04-01', interval '1 month')::date as month
+),
+revenue as (
+  select date_trunc('month', ordered_at)::date as month, sum(total) as revenue
+  from order_summary where status <> 'cancelled' group by 1
+)
+select m.month,
+       coalesce(r.revenue, 0)                                   as revenue,
+       lag(coalesce(r.revenue, 0)) over (order by m.month)      as previous,
+       round(100.0 * (coalesce(r.revenue, 0) - lag(coalesce(r.revenue, 0)) over (order by m.month))
+             / nullif(lag(coalesce(r.revenue, 0)) over (order by m.month), 0), 1) as growth_pct
+from months m
+left join revenue r using (month)
+order by m.month;
+</script>
+
+<h3>4. Gaps and islands: activity streaks</h3>
+<p>Consecutive days minus a row number give the same value for every day of a streak: group by it.</p>
+<script type="text/x-sql" data-title="Longest streak of active days per customer">
+with days as (
+  select distinct customer_id, (occurred_at at time zone 'Europe/Paris')::date as day
+  from events
+),
+islands as (
+  select customer_id, day,
+         day - (row_number() over (partition by customer_id order by day))::int as island
+  from days
+)
+select customer_id, min(day) as streak_start, max(day) as streak_end, count(*) as days
+from islands
+group by customer_id, island
+order by customer_id, streak_start;
+</script>
+
+<h3>5. Sessionization</h3>
+<p>A new session starts when more than 30 minutes passed since the previous event.</p>
+<script type="text/x-sql" data-title="Sessions from raw events">
+with flagged as (
+  select customer_id, occurred_at,
+         case when occurred_at - lag(occurred_at) over (partition by customer_id order by occurred_at)
+                   <= interval '30 minutes' then 0 else 1 end as new_session
+  from events
+),
+numbered as (
+  select *, sum(new_session) over (partition by customer_id order by occurred_at
+                                   rows between unbounded preceding and current row) as session_no
+  from flagged
+)
+select customer_id, session_no, min(occurred_at) as started, max(occurred_at) as ended, count(*) as events
+from numbered
+group by customer_id, session_no
+order by customer_id, session_no;
+</script>
+
+<h3>6. Incremental load with a watermark</h3>
+<script type="text/x-sql" data-title="Load only what's new since the last run (idempotent)">
+drop table if exists fact_events, etl_watermarks;
+create table etl_watermarks (job text primary key, last_loaded timestamptz not null);
+create table fact_events (event_id int primary key, customer_id int, occurred_at timestamptz, event_type text);
+insert into etl_watermarks values ('fact_events', '-infinity');
+
+-- the job: run it as often as you like, it never duplicates
+begin;
+  insert into fact_events
+  select event_id, customer_id, occurred_at, payload ->> 'type'
+  from events
+  where occurred_at > (select last_loaded from etl_watermarks where job = 'fact_events')
+  on conflict (event_id) do nothing;
+
+  update etl_watermarks
+  set last_loaded = coalesce((select max(occurred_at) from fact_events), last_loaded)
+  where job = 'fact_events';
+commit;
+
+select count(*) from fact_events;
+</script>
+<div class="callout trap"><strong>Late data</strong><p>An event that arrives late with an old timestamp is skipped by a strict watermark. Real pipelines reload a safety window (<code>occurred_at &gt; watermark - interval '1 day'</code>) and rely on the upsert to avoid duplicates.</p></div>
+
+<h3>7. Slowly changing dimension type 2</h3>
+<div class="table-wrap"><table>
+<tr><th>SCD type</th><th>On change</th><th>History</th><th>Example</th></tr>
+<tr><td>Type 0</td><td>never changes</td><td>—</td><td>date of birth</td></tr>
+<tr><td>Type 1</td><td>overwrite</td><td class="no">lost</td><td>fixing a typo in a name</td></tr>
+<tr><td><b>Type 2</b></td><td>close the old row, insert a new one</td><td class="yes">full</td><td>a product's price over time</td></tr>
+<tr><td>Type 3</td><td>keep a <code>previous_value</code> column</td><td>one level</td><td>previous region</td></tr>
+</table></div>
+<script type="text/x-sql" data-title="SCD2 for product prices">
+drop table if exists dim_product;
+create table dim_product (
+  product_key  serial primary key,           -- surrogate key: one per version
+  product_id   int not null,                 -- natural key
+  name text, price numeric(8,2),
+  valid_from   timestamptz not null,
+  valid_to     timestamptz,                  -- NULL = still current
+  is_current   boolean not null
+);
+
+-- the same two steps run on every load:
+-- 1) close current versions whose price changed
+update dim_product d
+set valid_to = now(), is_current = false
+from products p
+where p.product_id = d.product_id and d.is_current and p.price is distinct from d.price;
+
+-- 2) insert a current version for new and changed products
+insert into dim_product (product_id, name, price, valid_from, valid_to, is_current)
+select p.product_id, p.name, p.price, now(), null, true
+from products p
+left join dim_product d on d.product_id = p.product_id and d.is_current
+where d.product_id is null;
+
+-- simulate a price change, then run steps 1 and 2 again → product 4 has two versions
+update products set price = 35.00 where product_id = 4;
+update dim_product d set valid_to = now(), is_current = false
+from products p where p.product_id = d.product_id and d.is_current and p.price is distinct from d.price;
+insert into dim_product (product_id, name, price, valid_from, valid_to, is_current)
+select p.product_id, p.name, p.price, now(), null, true
+from products p left join dim_product d on d.product_id = p.product_id and d.is_current
+where d.product_id is null;
+
+select product_id, price, is_current from dim_product where product_id = 4 order by product_key;
+</script>
+
+<h3>8. Data quality checks</h3>
+<p>Each query returns the rows that break a rule: zero rows means the check passes. This is what dbt tests and Soda checks run under the hood.</p>
+<script type="text/x-sql" data-title="Uniqueness, not null, referential integrity, accepted values, freshness">
+-- unique: duplicated emails
+select email, count(*) from customers where email is not null group by email having count(*) > 1;
+
+-- not null
+select * from customers where email is null;
+
+-- relationships: items pointing to a missing order or product
+select oi.* from order_items oi
+left join orders o using (order_id)
+left join products p using (product_id)
+where o.order_id is null or p.product_id is null;
+
+-- accepted values
+select status, count(*) from orders where status not in ('paid', 'shipped', 'cancelled') group by status;
+
+-- freshness: fail if nothing arrived in the last 2 days
+select max(occurred_at) as latest_event, now() - max(occurred_at) > interval '2 days' as is_stale
+from events;
+
+-- volume anomaly: today vs the 7-day average
+select count(*) filter (where occurred_at >= current_date)                                       as today,
+       count(*) filter (where occurred_at >= current_date - 7 and occurred_at < current_date) / 7.0 as daily_avg
+from events;
+</script>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="dialects" data-title="SQL dialects compared">
+<h2>SQL dialects compared</h2>
+<p>The concepts transfer everywhere; the syntax doesn't always. These are the five you're most likely to meet in Paris job ads.</p>
+<div class="table-wrap"><table>
+<tr><th>Feature</th><th>PostgreSQL</th><th>Snowflake</th><th>BigQuery</th><th>DuckDB</th><th>SQL Server</th></tr>
+<tr><td>Kind</td><td>OLTP, row store</td><td>cloud warehouse, columnar</td><td>cloud warehouse, columnar, serverless</td><td>embedded OLAP, columnar</td><td>OLTP (+ columnstore)</td></tr>
+<tr><td>Limit rows</td><td><code>LIMIT n</code></td><td><code>LIMIT n</code></td><td><code>LIMIT n</code></td><td><code>LIMIT n</code></td><td><code>TOP n</code> / <code>OFFSET … FETCH</code></td></tr>
+<tr><td>Concatenate</td><td><code>||</code></td><td><code>||</code></td><td><code>||</code>, <code>CONCAT</code></td><td><code>||</code></td><td><code>+</code>, <code>CONCAT</code></td></tr>
+<tr><td>Case-insensitive LIKE</td><td><code>ILIKE</code></td><td><code>ILIKE</code></td><td><code>LOWER(x) LIKE</code></td><td><code>ILIKE</code></td><td>depends on collation (usually insensitive)</td></tr>
+<tr><td><code>7 / 2</code></td><td>3</td><td>3.5</td><td>3.5</td><td>3.5 (<code>//</code> for 3)</td><td>3</td></tr>
+<tr><td>Truncate a date</td><td><code>date_trunc('month', d)</code></td><td><code>DATE_TRUNC('month', d)</code></td><td><code>DATE_TRUNC(d, MONTH)</code></td><td><code>date_trunc('month', d)</code></td><td><code>DATETRUNC(month, d)</code> (2022+)</td></tr>
+<tr><td>Filter on a window function</td><td>subquery</td><td><code>QUALIFY</code></td><td><code>QUALIFY</code></td><td><code>QUALIFY</code></td><td>subquery</td></tr>
+<tr><td>First row per group</td><td><code>DISTINCT ON</code></td><td><code>QUALIFY row_number() … = 1</code></td><td><code>QUALIFY</code></td><td><code>DISTINCT ON</code> / <code>QUALIFY</code></td><td><code>row_number()</code> subquery</td></tr>
+<tr><td>Upsert</td><td><code>ON CONFLICT</code>, <code>MERGE</code></td><td><code>MERGE</code></td><td><code>MERGE</code></td><td><code>ON CONFLICT</code>, <code>MERGE</code></td><td><code>MERGE</code></td></tr>
+<tr><td>Text aggregation</td><td><code>string_agg</code></td><td><code>LISTAGG</code></td><td><code>STRING_AGG</code></td><td><code>string_agg</code></td><td><code>STRING_AGG</code></td></tr>
+<tr><td>JSON access</td><td><code>col -&gt;&gt; 'key'</code></td><td><code>col:key::string</code> (VARIANT)</td><td><code>JSON_VALUE(col, '$.key')</code></td><td><code>col -&gt;&gt; 'key'</code></td><td><code>JSON_VALUE(col, '$.key')</code></td></tr>
+<tr><td>Explode an array</td><td><code>unnest</code></td><td><code>LATERAL FLATTEN</code></td><td><code>UNNEST</code></td><td><code>unnest</code></td><td><code>OPENJSON</code> / <code>STRING_SPLIT</code></td></tr>
+<tr><td>Series of dates</td><td><code>generate_series</code></td><td><code>GENERATOR</code> + <code>DATEADD</code></td><td><code>GENERATE_DATE_ARRAY</code></td><td><code>generate_series</code> / <code>range</code></td><td><code>GENERATE_SERIES</code> (2022+)</td></tr>
+<tr><td>Indexes</td><td>B-tree, GIN, BRIN…</td><td>none: micro-partitions + clustering keys</td><td>none: partitioning + clustering</td><td>automatic min/max zone maps</td><td>clustered / nonclustered</td></tr>
+<tr><td>Triggers</td><td class="yes">yes</td><td class="no">no (streams + tasks)</td><td class="no">no</td><td class="no">no</td><td class="yes">yes</td></tr>
+<tr><td>Pricing model</td><td>your server</td><td>compute time (warehouses) + storage</td><td>bytes scanned (or slots) + storage</td><td>free, runs in your process</td><td>licence / cloud</td></tr>
+</table></div>
+
+<h3>OLTP vs OLAP</h3>
+<div class="table-wrap"><table>
+<tr><th></th><th>OLTP (PostgreSQL, MySQL)</th><th>OLAP (Snowflake, BigQuery, DuckDB)</th></tr>
+<tr><td>Workload</td><td>many small reads/writes (place an order)</td><td>few big scans and aggregates (revenue per month)</td></tr>
+<tr><td>Storage</td><td>row-oriented: a row's values together</td><td>column-oriented: a column's values together, compressed</td></tr>
+<tr><td><code>SELECT *</code></td><td>cheap</td><td class="no">expensive: reads every column (and costs money on BigQuery)</td></tr>
+<tr><td>Modelling</td><td>normalized (3NF)</td><td>star schema, wide denormalized tables</td></tr>
+<tr><td>Constraints</td><td>enforced</td><td>Snowflake/BigQuery: declared but mostly <b>not enforced</b> — test your data</td></tr>
+</table></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="interview" data-title="Interview questions">
+<h2>Interview questions</h2>
+<p>Try each one before opening the answer. Practise saying the reasoning out loud, in French and in English.</p>
+
+<details><summary>1. Second-highest price (handle ties)</summary>
+<script type="text/x-sql" data-title="Two ways">
+select max(price) from products where price < (select max(price) from products);
+
+select distinct price from (
+  select price, dense_rank() over (order by price desc) as r from products
+) t where r = 2;
+</script>
+<p>Use <code>dense_rank</code> so two products tied for first don't hide the second value. Generalises to the Nth.</p></details>
+
+<details><summary>2. Find and remove duplicate rows</summary>
+<p>Find with <code>GROUP BY key HAVING count(*) &gt; 1</code>. Remove with a self-join <code>DELETE … USING</code> keeping the smallest id, or with <code>row_number() over (partition by key)</code> and deleting <code>rn &gt; 1</code>. If there's no id at all, Postgres's hidden <code>ctid</code> column identifies physical rows.</p></details>
+
+<details><summary>3. Why can a LEFT JOIN return more rows than the left table?</summary>
+<p>Each left row is repeated once per matching right row. A customer with 3 orders appears 3 times. It's the fan-out problem: check the grain, or aggregate the right side first.</p></details>
+
+<details><summary>4. WHERE vs HAVING; UNION vs UNION ALL; DELETE vs TRUNCATE</summary>
+<p><code>WHERE</code> filters rows before grouping, <code>HAVING</code> filters groups after. <code>UNION</code> removes duplicates (extra sort/hash), <code>UNION ALL</code> doesn't. <code>DELETE</code> removes chosen rows one by one and fires triggers; <code>TRUNCATE</code> empties the table instantly.</p></details>
+
+<details><summary>5. Running total and 7-day moving average</summary>
+<p><code>sum(x) over (order by day rows between unbounded preceding and current row)</code> and <code>avg(x) over (order by day rows between 6 preceding and current row)</code>. Fill missing days with a date spine first, or the "7 rows" won't be 7 days.</p></details>
+
+<details><summary>6. Users active on 3 consecutive days</summary>
+<p>Gaps and islands: distinct (user, day), then <code>day - row_number() over (partition by user order by day)</code> is constant within a streak; group by it and keep <code>count(*) &gt;= 3</code>. Alternative: <code>lead(day, 2)</code> = day + 2.</p></details>
+
+<details><summary>7. Median without a median function</summary>
+<p>Postgres: <code>percentile_cont(0.5) within group (order by x)</code>. Portable: rank rows with <code>row_number()</code> and <code>count(*) over ()</code>, then average the middle one or two.</p></details>
+
+<details><summary>8. Why isn't my index used?</summary>
+<p>A function or arithmetic on the column, a missing leading column of a composite index, a leading <code>%</code> wildcard, a type mismatch, stale statistics, or the planner correctly deciding a seq scan is cheaper (tiny table, many rows match). Check with <code>EXPLAIN ANALYZE</code>.</p></details>
+
+<details><summary>9. View vs materialized view vs table</summary>
+<p>A view stores the query (always fresh, no speed-up). A materialized view stores the result (fast, stale until refreshed, indexable). A table is maintained by your pipeline (incremental, can keep history).</p></details>
+
+<details><summary>10. Function vs stored procedure</summary>
+<p>A function returns a value and is called inside queries; it can't commit. A procedure is called with <code>CALL</code>, returns nothing, and can manage transactions (commit in batches).</p></details>
+
+<details><summary>11. Explain isolation levels and a lost update</summary>
+<p>See the transactions chapter. Postgres defaults to Read Committed. A lost update happens when two sessions read then write the same value; prevent it with an atomic <code>UPDATE … SET x = x - 1</code>, <code>SELECT … FOR UPDATE</code>, or Serializable with retries.</p></details>
+
+<details><summary>12. How do you make a pipeline idempotent?</summary>
+<p>Running it twice gives the same result as once: load into staging, then upsert/<code>MERGE</code> on a natural key (or delete-then-insert the partition being reloaded), inside a transaction. Never blind <code>INSERT</code> appends.</p></details>
+
+<details><summary>13. SCD type 1 vs type 2</summary>
+<p>Type 1 overwrites (no history). Type 2 closes the current row (<code>valid_to</code>, <code>is_current = false</code>) and inserts a new version with a new surrogate key, so facts keep pointing to the version valid at the time.</p></details>
+
+<details><summary>14. OLTP vs OLAP, row vs column storage</summary>
+<p>OLTP: many small transactions, row storage, normalized. OLAP: big scans and aggregations, columnar storage (reads only needed columns, compresses well), star schemas. That's why <code>SELECT *</code> is cheap in Postgres and expensive in BigQuery.</p></details>
+
+<details><summary>15. Find missing ids in a sequence</summary>
+<script type="text/x-sql" data-title="Gaps in order ids">
+select order_id + 1 as gap_start, next_id - 1 as gap_end
+from (select order_id, lead(order_id) over (order by order_id) as next_id from orders) t
+where next_id - order_id > 1;
+</script></details>
+</section>
+
+<!-- ============================================================ -->
+<section class="chapter" id="cheatsheet" data-title="Cheat sheet">
+<h2>Cheat sheet</h2>
+<script type="text/x-sql" data-title="Query skeleton (logical order in comments)" data-norun="template">
+with step as (...)                      -- 0  named subqueries
+select distinct cols, agg(x), f() over w  -- 5  select, 6 windows, 7 distinct
+from t join u on ...                    -- 1  from / join
+where row_condition                     -- 2  row filter
+group by cols                           -- 3  groups (rollup / cube / grouping sets)
+having group_condition                  -- 4  group filter
+window w as (partition by ... order by ... rows between ...)
+order by col desc nulls last            -- 9  order
+limit n offset m;                       -- 10 limit
+</script>
+<div class="grid2">
+<div class="table-wrap"><table>
+<tr><th>Need</th><th>Reach for</th></tr>
+<tr><td>Rows with no match</td><td><code>NOT EXISTS</code></td></tr>
+<tr><td>Latest row per key</td><td><code>row_number() … = 1</code> / <code>DISTINCT ON</code></td></tr>
+<tr><td>Top N per group</td><td><code>row_number()</code> / <code>LATERAL … LIMIT n</code></td></tr>
+<tr><td>Previous / next value</td><td><code>lag</code> / <code>lead</code></td></tr>
+<tr><td>Running total</td><td><code>sum() over (order by … rows …)</code></td></tr>
+<tr><td>Share of total</td><td><code>x / sum(x) over ()</code></td></tr>
+<tr><td>Subtotals</td><td><code>ROLLUP</code> + <code>grouping()</code></td></tr>
+<tr><td>Rows → columns</td><td><code>sum() filter (where …)</code></td></tr>
+</table></div>
+<div class="table-wrap"><table>
+<tr><th>Need</th><th>Reach for</th></tr>
+<tr><td>Missing dates in a report</td><td><code>generate_series</code> + <code>LEFT JOIN</code></td></tr>
+<tr><td>Hierarchy</td><td><code>WITH RECURSIVE</code></td></tr>
+<tr><td>Upsert</td><td><code>ON CONFLICT</code> / <code>MERGE</code></td></tr>
+<tr><td>Change detection</td><td><code>IS DISTINCT FROM</code></td></tr>
+<tr><td>Safe division</td><td><code>x / nullif(y, 0)</code></td></tr>
+<tr><td>Streaks</td><td><code>day - row_number()</code></td></tr>
+<tr><td>Sessions</td><td><code>lag</code> + running <code>sum</code> of flags</td></tr>
+<tr><td>Slow query</td><td><code>EXPLAIN (ANALYZE, BUFFERS)</code></td></tr>
+</table></div>
+</div>
+</section>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/pgsql.min.js"></script>
+<script>
+(function () {
+  // Turn <script type="text/x-sql"> blocks into code figures with a copy button.
+  document.querySelectorAll('script[type="text/x-sql"]').forEach(function (s) {
+    var fig = document.createElement('figure');
+    fig.className = 'code';
+    var head = document.createElement('div');
+    head.className = 'code-head';
+    var label = document.createElement('span');
+    label.textContent = s.dataset.title || 'SQL';
+    if (s.dataset.norun) {
+      var tag = document.createElement('span');
+      tag.className = 'norun-tag';
+      tag.textContent = '  · ' + s.dataset.norun;
+      label.appendChild(tag);
+    }
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    var pre = document.createElement('pre');
+    var code = document.createElement('code');
+    code.className = 'language-pgsql';
+    code.textContent = s.textContent.replace(/^\n+|\s+$/g, '');
+    btn.addEventListener('click', function () {
+      navigator.clipboard.writeText(code.textContent).then(function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1200);
+      });
+    });
+    head.append(label, btn);
+    pre.appendChild(code);
+    fig.append(head, pre);
+    s.replaceWith(fig);
+  });
+  if (window.hljs) document.querySelectorAll('pre code').forEach(function (el) { hljs.highlightElement(el); });
+
+  // Storage helpers (may be unavailable in private windows).
+  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+
+  // Table of contents, revision checkboxes, progress.
+  var chapters = Array.prototype.slice.call(document.querySelectorAll('section.chapter'));
+  var toc = document.getElementById('toc');
+  var done = load('sql-handbook-done', {});
+  var links = {};
+  chapters.forEach(function (sec, i) {
+    var h2 = sec.querySelector('h2');
+    var chap = document.createElement('span');
+    chap.className = 'chap';
+    chap.textContent = 'Chapter ' + (i + 1);
+    h2.prepend(chap);
+
+    var meta = document.createElement('div');
+    meta.className = 'chapter-meta';
+    var lbl = document.createElement('label');
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !!done[sec.id];
+    lbl.append(cb, document.createTextNode('Revised'));
+    meta.appendChild(lbl);
+    h2.after(meta);
+
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + sec.id;
+    a.innerHTML = '<span class="num">' + (i + 1) + '</span>';
+    a.appendChild(document.createTextNode(sec.dataset.title));
+    li.appendChild(a);
+    toc.appendChild(li);
+    links[sec.id] = a;
+
+    cb.addEventListener('change', function () { done[sec.id] = cb.checked; save('sql-handbook-done', done); refresh(); });
+  });
+  function refresh() {
+    var n = 0;
+    chapters.forEach(function (sec) { var d = !!done[sec.id]; links[sec.id].classList.toggle('done', d); if (d) n++; });
+    document.getElementById('progress-text').textContent = n + ' of ' + chapters.length + ' chapters revised';
+    document.getElementById('progress-bar').style.width = (100 * n / chapters.length) + '%';
+  }
+  refresh();
+
+  // Highlight the chapter in view.
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        Object.keys(links).forEach(function (id) { links[id].classList.toggle('active', id === e.target.id); });
+      }
+    });
+  }, { rootMargin: '0px 0px -70% 0px' });
+  chapters.forEach(function (s) { io.observe(s); });
+
+  // Search: hide chapters that don't contain every word.
+  var search = document.getElementById('search');
+  search.addEventListener('input', function () {
+    var words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+    chapters.forEach(function (sec) {
+      var text = sec.textContent.toLowerCase();
+      var hit = words.every(function (w) { return text.indexOf(w) !== -1; });
+      sec.classList.toggle('hidden', !hit);
+      links[sec.id].parentElement.classList.toggle('hidden', !hit);
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== search) { e.preventDefault(); search.focus(); }
+    if (e.key === 'Escape' && document.activeElement === search) { search.value = ''; search.dispatchEvent(new Event('input')); search.blur(); }
+  });
+
+  // Theme toggle and mobile menu.
+  var root = document.documentElement;
+  var light = document.getElementById('hl-light'), dark = document.getElementById('hl-dark');
+  function applyTheme(t) {
+    if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    var isDark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    light.disabled = isDark; dark.disabled = !isDark;
+  }
+  applyTheme(load('sql-handbook-theme', null));
+  document.getElementById('theme').addEventListener('click', function () {
+    var isDark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark'
+                                                 : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = isDark ? 'light' : 'dark';
+    save('sql-handbook-theme', next);
+    applyTheme(next);
+  });
+  document.getElementById('menu').addEventListener('click', function () { document.getElementById('sidebar').classList.toggle('open'); });
+  toc.addEventListener('click', function () { document.getElementById('sidebar').classList.remove('open'); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Silent data bugs</title>
+<style>
+  @page { size: 1080px 1350px; margin: 0; }
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --line: #334155;
+    --ink: #f1f5f9; --muted: #94a3b8;
+    --ok: #34d399; --bad: #f87171; --accent: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide {
+    width: 1080px; height: 1350px; padding: 110px 96px 150px;
+    position: relative; overflow: hidden; page-break-after: always; break-after: page;
+    display: flex; flex-direction: column;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .kicker { font-size: 30px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 36px; }
+  h1 { font-size: 104px; line-height: 1.05; font-weight: 800; letter-spacing: -2px; }
+  h2 { font-size: 72px; line-height: 1.1; font-weight: 800; letter-spacing: -1px; margin-bottom: 56px; }
+  p, li { font-size: 40px; line-height: 1.4; }
+  .muted { color: var(--muted); }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .acc { color: var(--accent); }
+  code { font-family: Consolas, "Cascadia Mono", monospace; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 2px 14px; font-size: 0.9em; }
+  .footer { position: absolute; left: 96px; right: 96px; bottom: 56px; display: flex; justify-content: space-between; font-size: 26px; color: var(--muted); }
+  .grow { flex: 1; }
+  .card { background: var(--panel); border: 2px solid var(--line); border-radius: 28px; padding: 40px 44px; }
+  .stack > * + * { margin-top: 28px; }
+
+  /* 1 cover */
+  .big-num { font-size: 190px; font-weight: 800; line-height: 1; color: var(--bad); letter-spacing: -4px; }
+  .zeros { display: flex; gap: 28px; margin-bottom: 70px; }
+  .pill { font-size: 40px; font-weight: 700; padding: 18px 34px; border-radius: 999px; border: 3px solid var(--ok); color: var(--ok); }
+  .swipe { font-size: 34px; color: var(--accent); font-weight: 600; }
+
+  /* 2 setup */
+  .pipes { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .pipe { text-align: center; padding: 50px 30px; }
+  .pipe .name { font-size: 46px; font-weight: 700; }
+  .pipe .res { font-size: 36px; margin-top: 18px; }
+  .neq { text-align: center; font-size: 150px; font-weight: 800; color: var(--bad); line-height: 1; margin: 46px 0 30px; }
+  .verdict { text-align: center; font-size: 46px; font-weight: 700; }
+
+  /* 3 definitions */
+  .def { display: flex; align-items: center; gap: 40px; }
+  .def .who { font-size: 38px; font-weight: 700; width: 220px; color: var(--muted); }
+  .def .rule { font-size: 46px; }
+
+  /* 4 reveal */
+  .tags { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tag { font-size: 34px; padding: 12px 26px; border-radius: 14px; background: var(--panel); border: 2px solid var(--line); }
+  .delta { display: flex; align-items: baseline; gap: 34px; font-weight: 800; }
+  .delta .from { font-size: 96px; color: var(--muted); text-decoration: line-through; text-decoration-thickness: 6px; }
+  .delta .arrow { font-size: 70px; color: var(--muted); }
+  .delta .to { font-size: 120px; color: var(--ok); }
+  .quote { font-size: 50px; font-weight: 700; border-left: 10px solid var(--accent); padding-left: 34px; }
+
+  /* 5 public data */
+  .bug { display: grid; grid-template-columns: 230px 1fr; gap: 34px; align-items: start; padding: 34px 40px; }
+  .bug .n { font-size: 74px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .bug .what { font-size: 34px; line-height: 1.35; }
+  .bug .how { font-size: 28px; color: var(--ok); margin-top: 12px; font-weight: 600; }
+
+  /* 6 lesson */
+  .tests { counter-reset: t; list-style: none; }
+  .tests li { counter-increment: t; display: flex; gap: 30px; align-items: center; font-size: 42px; padding: 30px 0; border-top: 2px solid var(--line); }
+  .tests li::before { content: counter(t); flex: none; width: 76px; height: 76px; border-radius: 50%; background: var(--accent); color: var(--bg); font-weight: 800; font-size: 42px; display: flex; align-items: center; justify-content: center; }
+
+  /* 7 cta */
+  .cta { font-size: 84px; font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+  .me { font-size: 38px; font-weight: 700; } .me + p { font-size: 32px; }
+
+  @media screen { body.single .slide { display: none; } body.single .slide.show { display: flex; } }
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide">
+  <div class="kicker">Silent data bugs</div>
+  <div class="zeros"><span class="pill">0 errors</span><span class="pill">0 alerts</span><span class="pill">tests ✓</span></div>
+  <div class="big-num">3,393</div>
+  <h1 style="margin-top:14px">wrong rows.</h1>
+  <div class="grow"></div>
+  <p class="muted" style="font-size:38px">How my pipeline lied quietly, and the tests that caught it.</p>
+  <p class="swipe" style="margin-top:40px">Swipe →</p>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <div class="kicker">The setup</div>
+  <h2>Two pipelines.<br>Same 1M sales lines.</h2>
+  <div class="pipes">
+    <div class="card pipe"><div class="name">Python</div><div class="res ok">✓ its tests pass</div></div>
+    <div class="card pipe"><div class="name">dbt</div><div class="res ok">✓ its tests pass</div></div>
+  </div>
+  <div class="neq">≠</div>
+  <p class="verdict">Then one test compares them:<br><span class="bad">3,394 lines disagree.</span></p>
+  <div class="footer"><span>2 / 7</span><span>Silent data bugs</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <div class="kicker">The disagreement</div>
+  <h2>Two definitions of “cancellation”</h2>
+  <div class="stack">
+    <div class="card def"><div class="who">Python</div><div class="rule"><code>quantity &lt; 0</code></div></div>
+    <div class="card def"><div class="who">dbt</div><div class="rule">invoice starts with <code>C</code></div></div>
+  </div>
+  <div class="grow"></div>
+  <p style="font-size:52px; font-weight:700">Both sound right.</p>
+  <p style="font-size:52px; font-weight:700" class="acc">They aren’t the same thing.</p>
+  <div class="grow"></div>
+  <div class="footer"><span>3 / 7</span><span>Silent data bugs</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <div class="kicker">What those rows really were</div>
+  <div class="tags">
+    <span class="tag">quantity &lt; 0</span><span class="tag">price = 0</span><span class="tag">“damages”</span><span class="tag">“missing”</span>
+  </div>
+  <p style="font-size:54px; font-weight:800; margin:44px 0 60px">→ stock write-offs,<br>not cancellations.</p>
+  <p class="muted" style="font-size:34px; margin-bottom:6px">Cancellations</p>
+  <div class="delta"><span class="from">22,557</span><span class="arrow">→</span><span class="to">19,165</span></div>
+  <p class="muted" style="font-size:32px; margin-top:20px">−3,393 write-offs · +1 “C” invoice with quantity &gt; 0</p>
+  <p style="font-size:34px; margin-top:36px">Fix: <code>line_type</code> = sale / cancellation / stock_adjustment</p>
+  <div class="grow"></div>
+  <p class="quote">The code ran as written.<br>The assumption was wrong.</p>
+  <div class="footer"><span>4 / 7</span><span>Silent data bugs</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <div class="kicker">Public data lies quietly too</div>
+  <h2 style="margin-bottom:44px">None of these throws an error.</h2>
+  <div class="stack">
+    <div class="card bug"><div class="n">410</div><div><div class="what">docks at 2 Paris Vélib’ stations, where no normal station tops 200. Temporary megastations for events.</div><div class="how">Caught by a range test</div></div></div>
+    <div class="card bug"><div class="n">9,443</div><div><div class="what">Chicago crimes logged at exactly 00:00. Not a midnight crime wave: “time unknown” placeholders.</div><div class="how">Caught by looking at the time distribution</div></div></div>
+    <div class="card bug"><div class="n">6.4×</div><div><div class="what">the world’s real CO₂ if you sum every row. Countries, continents and “World” share one column.</div><div class="how">Caught by a grain check</div></div></div>
+  </div>
+  <div class="footer"><span>5 / 7</span><span>Silent data bugs</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <div class="kicker">The lesson</div>
+  <h1 style="font-size:88px">AI makes “it runs” cheap.</h1>
+  <h1 style="font-size:88px; margin-top:10px" class="acc">“It’s right” is still your job.</h1>
+  <div class="grow"></div>
+  <p class="muted" style="font-size:34px; margin-bottom:12px">3 data tests worth writing</p>
+  <ol class="tests">
+    <li>Compare two sources of the same truth</li>
+    <li>Check value ranges</li>
+    <li>Check the grain: one row = one what?</li>
+  </ol>
+  <div class="footer"><span>6 / 7</span><span>Silent data bugs</span></div>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <div class="kicker">Your turn</div>
+  <div class="grow"></div>
+  <p class="cta">What’s the quietest data bug you’ve ever found?</p>
+  <p class="swipe" style="font-size:44px; margin-top:50px">Tell me in the comments 👇</p>
+  <div class="grow"></div>
+  <div class="card">
+    <p class="me">Mohamed Abderrahmane Heouaine</p>
+    <p class="muted">Data Engineer · code on github.com/sasukeaizen7</p>
+  </div>
+</section>
+
+<script>
+  const n = parseInt(location.hash.slice(1), 10);
+  if (n) { document.body.classList.add('single'); document.querySelectorAll('.slide')[n - 1].classList.add('show'); }
+</script>
+</body>
+</html>
